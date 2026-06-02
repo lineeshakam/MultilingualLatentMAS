@@ -275,11 +275,12 @@ CUDA_VISIBLE_DEVICES=0,1 python run.py --method latent_mas --model_name Qwen/Qwe
 💫 If you find **LatentMAS** helpful, please kindly give us a star ⭐️ and cite below. Thanks!
 
 ```
-@article{zou2025latentmas,
+@inproceedings{
+zou2025latentmas,
   title={Latent Collaboration in Multi-Agent Systems},
-  author={Zou, Jiaru and Yang, Xiyuan and Qiu, Ruizhong and Li, Gaotang and Tieu, Katherine and Lu, Pan and Shen, Ke and Tong, Hanghang and Choi, Yejin and He, Jingrui and Zou, James and Wang, Mengdi and Yang, Ling},
-  journal={arXiv preprint arXiv:2511.20639},
-  year={2025}
+  author={Jiaru Zou and Ruizhong Qiu and Gaotang Li and Xiyuan Yang and Katherine Tieu and Pan Lu and Ke Shen and Hanghang Tong and Yejin Choi and Jingrui He and James Zou and Mengdi Wang and Ling Yang},
+  booktitle={Forty-third International Conference on Machine Learning},
+  year={2026}
 }
 ```
 
