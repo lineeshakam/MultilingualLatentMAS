@@ -202,6 +202,13 @@ python run.py --method text_mas --model_name Qwen/Qwen3-14B --task gsm8k --promp
 ### 🔹 **LatentMAS (our latent mas method)**
 
 ```bash
+# 4B example command
+python run.py --method latent_mas --model_name Qwen/Qwen3-4B --task gsm8k --prompt sequential --max_samples -1 --max_new_tokens 2048
+
+# 8B example command
+python run.py --method latent_mas --model_name Qwen/Qwen3-8B --task gsm8k --prompt sequential --max_samples -1 --max_new_tokens 2048
+
+# 14B example command
 python run.py --method latent_mas --model_name Qwen/Qwen3-14B --task gsm8k --prompt sequential --max_samples -1 --max_new_tokens 2048
 ```
 
