@@ -1,11 +1,16 @@
 import os
 import csv
+import importlib.util
 import torch
 import matplotlib.pyplot as plt
 from typing import Dict, List, Optional, Tuple
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 try:
+    # Avoid accidentally importing a vendored `vllm/` inside the repo.
+    spec = importlib.util.find_spec("vllm")
+    if spec is None or (spec.origin and os.getcwd() in os.path.abspath(spec.origin)):
+        raise ImportError("vllm not available or vendored locally; skipping vllm backend")
     from vllm import LLM
     # SamplingParams location can vary between vLLM versions; try common locations
     try:
@@ -23,7 +28,7 @@ try:
                 max_tokens: int = 256
 
     _HAS_VLLM = True
-except ImportError:
+except Exception:
     LLM = None
     SamplingParams = None
     _HAS_VLLM = False
@@ -82,6 +87,9 @@ class ModelWrapper:
         self.device = device
         self.use_vllm = use_vllm and _HAS_VLLM
         self.vllm_engine = None
+        # HF_device: the device where the HF (transformers) model should be placed
+        # Ensure the attribute always exists to avoid AttributeError in latent/vllm paths.
+        self.HF_device = None
         self.latent_space_realign = bool(getattr(args, "latent_space_realign", False)) if args else False
         self._latent_realign_matrices: Dict[int, Tuple[torch.Tensor, torch.Tensor]] = {}
         self.args = args
@@ -293,7 +301,11 @@ class ModelWrapper:
                     device=attention_mask.device,
                 )
                 attention_mask = torch.cat([past_mask, attention_mask], dim=-1)
-        outputs = self.model.generate(
+        # Transformers' `generate()` may not accept a `cache_position` kwarg
+        # (it's used by vLLM). Only pass supported kwargs; we already
+        # adjusted `attention_mask` when `past_key_values` is provided so
+        # generation aligns correctly.
+        gen_kwargs = dict(
             input_ids=input_ids,
             attention_mask=attention_mask,
             max_new_tokens=max_new_tokens,
@@ -303,9 +315,11 @@ class ModelWrapper:
             pad_token_id=self.tokenizer.pad_token_id,
             return_dict_in_generate=True,
             output_scores=False,
-            past_key_values=past_key_values,
-            cache_position=cache_position,
         )
+        if past_key_values is not None:
+            gen_kwargs["past_key_values"] = past_key_values
+
+        outputs = self.model.generate(**gen_kwargs)
         sequences = outputs.sequences
         generations: List[str] = []
         for idx, length in enumerate(prompt_lengths):
