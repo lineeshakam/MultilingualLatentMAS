@@ -6,9 +6,26 @@ from typing import Dict, List, Optional, Tuple
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 try:
-    from vllm import LLM, SamplingParams
+    from vllm import LLM
+    # SamplingParams location can vary between vLLM versions; try common locations
+    try:
+        from vllm import SamplingParams
+    except Exception:
+        try:
+            from vllm.sampling_params import SamplingParams
+        except Exception:
+            from dataclasses import dataclass
+
+            @dataclass
+            class SamplingParams:
+                temperature: float = 0.7
+                top_p: float = 0.95
+                max_tokens: int = 256
+
     _HAS_VLLM = True
 except ImportError:
+    LLM = None
+    SamplingParams = None
     _HAS_VLLM = False
 
 

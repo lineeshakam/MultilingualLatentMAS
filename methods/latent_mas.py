@@ -6,7 +6,19 @@ from prompts import build_agent_message_sequential_latent_mas, build_agent_messa
 from utils import extract_gsm8k_answer, normalize_answer, extract_markdown_python_block, run_with_timeout
 import torch
 import argparse
-from vllm import SamplingParams
+try:
+    try:
+        from vllm import SamplingParams
+    except Exception:
+        from vllm.sampling_params import SamplingParams
+except Exception:
+    from dataclasses import dataclass
+
+    @dataclass
+    class SamplingParams:
+        temperature: float = 0.7
+        top_p: float = 0.95
+        max_tokens: int = 256
 import pdb
 
 try:
