@@ -1,4 +1,6 @@
 from typing import Dict, List, Optional, Tuple
+import importlib.util
+import os
 
 from . import default_agents
 from models import ModelWrapper, _past_length
@@ -7,10 +9,23 @@ from utils import extract_gsm8k_answer, normalize_answer, extract_markdown_pytho
 import torch
 import argparse
 try:
+    #make sure we aren't running into vllm errors bc that seems to be a common thing
+    spec = importlib.util.find_spec("vllm")
+    if spec is None or (spec.origin and os.getcwd() in os.path.abspath(spec.origin)):
+        raise ImportError("vllm not available")
     try:
         from vllm import SamplingParams
     except Exception:
-        from vllm.sampling_params import SamplingParams
+        try:
+            from vllm.sampling_params import SamplingParams
+        except Exception:
+            from dataclasses import dataclass
+
+            @dataclass
+            class SamplingParams:
+                temperature: float = 0.7
+                top_p: float = 0.95
+                max_tokens: int = 256
 except Exception:
     from dataclasses import dataclass
 
