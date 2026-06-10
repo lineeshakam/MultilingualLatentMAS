@@ -13,7 +13,8 @@ from data import (
     load_gpqa_diamond,
     load_mbppplus,
     load_humanevalplus,
-    load_medqa
+    load_medqa,
+    load_mgsm
 )
 from methods.baseline import BaselineMethod
 from methods.latent_mas import LatentMASMethod
@@ -91,8 +92,9 @@ def main():
                         choices=["Qwen/Qwen3-4B", "Qwen/Qwen3-4B", "Qwen/Qwen3-14B"],
                         help="Model choices to use for experiments (e.g. 'Qwen/Qwen3-14B').")
     parser.add_argument("--max_samples", type=int, default=-1, help="Number of questions to evaluate; set -1 to use all samples.")
-    parser.add_argument("--task", choices=["gsm8k", "aime2024", "aime2025", "gpqa", "arc_easy", "arc_challenge", "mbppplus", 'humanevalplus', 'medqa'], default="gsm8k",
+    parser.add_argument("--task", choices=["gsm8k", "aime2024", "aime2025", "gpqa", "arc_easy", "arc_challenge", "mbppplus", 'humanevalplus', 'medqa', 'mgsm'], default="gsm8k",
                         help="Dataset/task to evaluate. Controls which loader is used.")
+    parser.add_argument("--mgsm_lang", type=str, default="en", help="Language code to use for mgsm task (e.g. 'en','bn').")
     parser.add_argument("--prompt", type=str, choices=["sequential", "hierarchical"], default="sequential", help="Multi-agent system architecture: 'sequential' or 'hierarchical'.")
 
     # other args
@@ -184,6 +186,8 @@ def main():
         dataset_iter = load_humanevalplus(split='test')
     elif args.task == "medqa":
         dataset_iter = load_medqa(split='test')
+    elif args.task == "mgsm":
+        dataset_iter = load_mgsm(split=args.split, lang=args.mgsm_lang)
     else:
         raise ValueError(f'no {args.task} support')
 

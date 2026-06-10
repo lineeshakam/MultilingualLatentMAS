@@ -225,3 +225,58 @@ def load_medqa(split=None, subset=None, cache_dir=None):
             "gold": gold,
         }
 
+
+def load_mgsm(
+    split: str = "test",
+    lang: str = "en",
+    cache_dir: Optional[str] = None,
+) -> Iterable[Dict]:
+
+    #mgsm has each language as a config (like bn (bengali), en (english))
+    #we want to run using a variable lang that specifies the language you want this to occur in
+    if lang is None:
+        raise ValueError("lang must be provided")
+    ds = load_dataset("juletxara/mgsm", lang, split=split, cache_dir=cache_dir)
+
+    for item in ds:
+        #check for an explicit language field (more so that we can copy this for other datasets)
+        item_lang = None
+        if "language" in item:
+            item_lang = item.get("language")
+        elif "lang" in item:
+            item_lang = item.get("lang")
+
+        if item_lang is not None and str(item_lang).lower() != str(lang).lower():
+            continue
+        
+        question = (
+            item.get("question")
+            or item.get("question_text")
+            or item.get("prompt")
+            or ""
+        )
+        question = str(question).strip()
+
+        raw_answer = item.get("answer")
+        if raw_answer is None or raw_answer == "":
+            if "answer_number" in item and item.get("answer_number") is not None:
+                raw_answer = str(item.get("answer_number"))
+            elif "equation_solution" in item and item.get("equation_solution"):
+                raw_answer = item.get("equation_solution")
+            else:
+                raw_answer = ""
+
+        solution = str(raw_answer).strip()
+
+        #gold answer for comparison
+        if "answer_number" in item and item.get("answer_number") is not None:
+            gold = normalize_answer(str(item.get("answer_number")))
+        else:
+            gold = normalize_answer(solution)
+
+        yield {
+            "question": question,
+            "solution": solution,
+            "gold": gold,
+        }
+
