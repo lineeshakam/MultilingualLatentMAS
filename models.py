@@ -40,8 +40,40 @@ def _ensure_pad_token(tokenizer: AutoTokenizer) -> None:
 def _past_length(past_key_values: Optional[Tuple]) -> int:
     if not past_key_values:
         return 0
-    k = past_key_values[0][0]
-    return k.shape[-2]
+    # Handle different past_key_values types:
+    # - legacy tuple of tuples returned by transformers
+    # - Cache/DynamicCache-like objects from vLLM or newer HF internals
+    try:
+        # If object provides a legacy conversion (e.g., Cache), convert and read
+        if hasattr(past_key_values, "to_legacy_cache"):
+            legacy = past_key_values.to_legacy_cache()
+            k = legacy[0][0]
+            return k.shape[-2]
+    except Exception:
+        pass
+
+    # If it's subscriptable (tuple/list of layers)
+    try:
+        if hasattr(past_key_values, "__getitem__"):
+            k = past_key_values[0][0]
+            return k.shape[-2]
+    except Exception:
+        pass
+
+    # As a last resort, try to find the first tensor-like object and infer length
+    try:
+        # iterate if it's iterable
+        for layer in past_key_values:
+            if isinstance(layer, tuple) or isinstance(layer, list):
+                for t in layer:
+                    if hasattr(t, "shape"):
+                        return t.shape[-2]
+            elif hasattr(layer, "shape"):
+                return layer.shape[-2]
+    except Exception:
+        pass
+
+    return 0
 
 
 class ModelWrapper:
