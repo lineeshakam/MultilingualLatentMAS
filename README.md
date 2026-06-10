@@ -1,3 +1,21 @@
+# Setup & Run
+- ativate conda env 'conda activate vllm_env'
+- export HF_TOKEN="hf_..."
+- **run baseline** python run.py --method baseline --model_name ./models/qwen3-4b --task gsm8k --max_samples 1 --generate_bs 1 --device mps
+- **run latentMAS** python run.py --method latent_mas --model_name ./models/qwen3-4b --task gsm8k  --max_samples 1 --generate_bs 1 --device mps --prompt sequential
+
+- **test on mgsm** langs=(bn de en es fr ja ru sw te th zh) #you can choose your language you want to run in, this just generates a sample q for all of them
+for L in "${langs[@]}"; do
+  echo "=== $L ==="
+  python run.py --method baseline --model_name Qwen/Qwen3-4B \
+    --task mgsm --mgsm_lang $L --max_samples 1 --generate_bs 1 --device mps ##this is for my mac, with another device probably look into torch cuda or cpu
+
+
+
+
+
+
+
 <a name="readme-top"></a>
 
 <p align="center">
