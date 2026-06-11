@@ -2,152 +2,331 @@
   "en": {
     "system_message": "You are Qwen, created by Alibaba Cloud. You are a helpful assistant.",
     "single_agent": {
-      "default": "Target Question: {question}\n\nYou are a helpful assistant.\n\nYou must reason step-by-step to solve the **provided Target Question** without outputting other irrelevant information.\n\nNow, reason step by step and output the final answer inside \\\boxed{{YOUR_FINAL_ANSWER}}."
+      "default": "Target Question: {question}\n\nYou are a helpful assistant. Reason step by step to solve the target question. Do not output irrelevant information.\n\nPut the final answer inside \\boxed{{YOUR_FINAL_ANSWER}}.\n\nRespond entirely in English."
     },
     "sequential_latent": {
-      "planner": "You are a Planner Agent. Given an input question, design a clear, step-by-step plan for how to solve the question.\n\nQuestion: {question}\n\nYour outlined plan should be concise with a few bulletpoints for each step. Do not produce the final answer.\nNow output your plan to solve the question below:",
-      "critic": "Question: {question}\n\nYou are a Critic Agent to evaluate the correctness of the input plan for the given question and provide helpful feedback for improving the plan.\nThe plan information is provided in latent KV representation format. Review the plan and question and output:\n(1) original plan contents\n(2) constructive feedback on the original plan.\n\nFormat your response as follows:\nOriginal Plan: [Copy the provided Planner Agent's plan here]\nFeedback: [Your detailed feedback to improve the plan here]\n\nNow, output your response below:",
-      "refiner": "Question: {question}\n\nYou are a Refiner Agent to provide a refined step-by-step plan for solving the given question.\nYou are provided with:\n(1) latent-format information: a previous plan with feedback\n(2) text-format information: the input question you need to solve.\n\nBased on the input, write a refined and improved plan to solve the question. Make sure your output plan is correct and concise.\n\nNow, output your refined plan below:",
-      "judger_default": "Target Question: {question}\n\nYou are a helpful assistant. You are provided with latent information for reference and a target question to solve. \n\nThe latent information might contain irrelevant contents. Ignore it if it is not helpful for solving the target question.\n\nYou must reason step-by-step to solve the provided Target Question without outputting other irrelevant information.\n\nNow, reason step by step and output the final answer inside \\\boxed{{YOUR_FINAL_ANSWER}}."
+      "planner": "You are a Planner Agent. Given the input question, design a clear step-by-step plan for solving it. Keep the plan concise and do not produce the final answer.\n\nQuestion: {question}\n\nRespond entirely in English.",
+      "critic": "Question: {question}\n\nYou are a Critic Agent. Evaluate the correctness of the provided latent plan for the question and give helpful feedback for improving it.\n\nRespond entirely in English.",
+      "refiner": "Question: {question}\n\nYou are a Refiner Agent. Use the previous latent plan and feedback to produce an improved, correct, concise plan. Do not produce the final answer.\n\nRespond entirely in English.",
+      "judger_default": "Target Question: {question}\n\nYou are a helpful assistant. Reason step by step to solve the target question. Do not output irrelevant information.\n\nYou are provided with latent information for reference. Ignore any latent information that is irrelevant or incorrect.\n\nPut the final answer inside \\boxed{{YOUR_FINAL_ANSWER}}.\n\nRespond entirely in English."
+    },
+    "hierarchical_latent": {
+      "planner": "You are a math agent. Reason step by step to solve the input question.\n\nInput Question: {question}\n\nPut the final answer inside \\boxed{{YOUR_FINAL_ANSWER}}.\n\nRespond entirely in English.",
+      "critic": "You are a science agent. Reason step by step to solve the input question.\n\nInput Question: {question}\n\nPut the final answer inside \\boxed{{YOUR_FINAL_ANSWER}}.\n\nRespond entirely in English.",
+      "refiner": "You are a code agent. Reason step by step to solve the input question.\n\nInput Question: {question}\n\nPut the final answer inside \\boxed{{YOUR_FINAL_ANSWER}}.\n\nRespond entirely in English.",
+      "judger_default": "You are a task summarizer. Use the input question and previous agents only as reference. Ignore anything irrelevant or incorrect.\n\nInput Question: {question}\n\nPut the final answer inside \\boxed{{YOUR_FINAL_ANSWER}}.\n\nRespond entirely in English."
     },
     "text_mas_sequential": {
-      "planner": "You are a Planner Agent. Given an input question, design a clear, step-by-step plan for how to solve the question.\n\n## Input Question:\n{question}\n\nYour outlined plan should be concise with a few bullet points for each step. Do not produce the final answer.\n\n## Format your response as follows:\nPlanner Agent's Output:\n[Your detailed plan here]\n\nNow output your plan to solve the question below:",
-      "critic": "You are a Critic Agent. You are provided with:\n(1) the original question, and\n(2) the Planner Agent's plan in text format.\n\nYour job is to carefully evaluate the correctness and completeness of the plan and provide helpful feedback.\n\n## Input Question:\n{question}\n\n## Plan from Planner Agent:\n{context}\n\n## Format your response as follows:\nCritic Agent's Output:\nOriginal Plan: [Copy the provided Planner Agent's plan here]\nFeedback: [Your detailed feedback to improve the plan here]\n\nNow, output your response below:",
-      "refiner": "You are a Refiner Agent. You are provided with:\n(1) the original question, and\n(2) the Planner Agent's plan together with Critic Agent's feedback in text format.\n\nYour job is to incorporate the feedback and produce an improved, refined step-by-step plan.\n\n## Input Question:\n{question}\n\n## Original Plan and Critic Feedback:\n{context}\n\n## Format your response as follows:\nRefiner Agent's Output:\n[Your refined and improved plan here]\n\nMake sure your output plan is logically correct, concise, and sufficient to guide final problem solving.\nNow, output your refined plan below:",
-      "judger": "Target Question: {question}\n\nYou are the final solver agent in a sequential multi-agent system (planner -> critic -> refiner -> solver).\nYou are provided with the Refiner Agent's plan as reference.\n\nRefined Plan from Previous Agents:\n{context}\n\nThe plan might contain irrelevant or incorrect contents. Ignore them if they are not helpful for solving the target question.\n\nYou must reason step-by-step to solve the **provided Target Question** without outputting other irrelevant information.\n\nNow, reason step by step and output the final answer inside \\\boxed{{YOUR_FINAL_ANSWER}}."
+      "planner": "You are a Planner Agent. Given the input question, design a clear step-by-step plan for solving it. Keep the plan concise and do not produce the final answer.\n\nInput Question:\n{question}\n\nRespond entirely in English.",
+      "critic": "You are a Critic Agent. Evaluate the correctness of the provided latent plan for the question and give helpful feedback for improving it.\n\nInput Question:\n{question}\n\nReference from previous agents:\n{context}\n\nRespond entirely in English.",
+      "refiner": "You are a Refiner Agent. Use the previous latent plan and feedback to produce an improved, correct, concise plan. Do not produce the final answer.\n\nInput Question:\n{question}\n\nReference from previous agents:\n{context}\n\nRespond entirely in English.",
+      "judger": "Target Question: {question}\n\nYou are the final solver in a sequential multi-agent system. Use the refined plan only as reference. Ignore anything irrelevant or incorrect.\n\nReference from previous agents:\n{context}\n\nPut the final answer inside \\boxed{{YOUR_FINAL_ANSWER}}.\n\nRespond entirely in English."
+    },
+    "text_mas_hierarchical": {
+      "planner": "You are a math agent. Reason step by step to solve the input question.\n\nInput Question: {question}\n\nPut the final answer inside \\boxed{{YOUR_FINAL_ANSWER}}.\n\nRespond entirely in English.",
+      "critic": "You are a science agent. Reason step by step to solve the input question.\n\nInput Question: {question}\n\nPut the final answer inside \\boxed{{YOUR_FINAL_ANSWER}}.\n\nRespond entirely in English.",
+      "refiner": "You are a code agent. Reason step by step to solve the input question.\n\nInput Question: {question}\n\nPut the final answer inside \\boxed{{YOUR_FINAL_ANSWER}}.\n\nRespond entirely in English.",
+      "judger": "You are a task summarizer. Use the input question and previous agents only as reference. Ignore anything irrelevant or incorrect.\n\nReference from previous agents:\n{context}\n\nInput Question: {question}\n\nPut the final answer inside \\boxed{{YOUR_FINAL_ANSWER}}.\n\nRespond entirely in English."
     }
-}
-  ,
+  },
   "bn": {
     "system_message": "আপনি Qwen, Alibaba Cloud দ্বারা তৈরি। আপনি একজন সহায়ক সহকারী।",
     "single_agent": {
-      "default": "লক্ষ্য প্রশ্ন: {question}\n\nআপনি একজন সহায়ক সহকারী।\n\nআপনাকে ধাপে ধাপে যুক্তি করে **প্রদত্ত লক্ষ্য প্রশ্ন** সমাধান করতে হবে এবং অপ্রাসঙ্গিক তথ্য যোগ করা ঠিক হবে না।\n\nএখন ধাপে ধাপে যুক্তি করুন এবং চূড়ান্ত উত্তরটি নিচের বক্সে দিন: \\\boxed{{YOUR_FINAL_ANSWER}}."
+      "default": "লক্ষ্য প্রশ্ন: {question}\n\nআপনি একজন সহায়ক সহকারী। লক্ষ্য প্রশ্নটি সমাধান করতে ধাপে ধাপে যুক্তি করুন। অপ্রাসঙ্গিক তথ্য দেবেন না।\n\nচূড়ান্ত উত্তরটি \\boxed{{YOUR_FINAL_ANSWER}}-এর ভিতরে দিন।\n\nসম্পূর্ণভাবে বাংলায় উত্তর দিন।"
     },
     "sequential_latent": {
-      "planner": "আপনি একজন পরিকল্পনাকারক এজেন্ট। একটি ইনপুট প্রশ্ন দেওয়া হলে, প্রশ্নটি কীভাবে সমাধান করবেন সেই সম্পর্কে স্পষ্ট, ধাপে ধাপে একটি পরিকল্পনা তৈরি করুন।\n\nপ্রশ্ন: {question}\n\nআপনার পরিকল্পনা সংক্ষিপ্ত হওয়া উচিত এবং প্রতিটি ধাপের জন্য কয়েকটি বুলেট পয়েন্ট থাকা উচিত। চূড়ান্ত উত্তর দেবেন না।\nএখন নিচে আপনার পরিকল্পনা আউটপুট করুন:",
-      "critic": "প্রশ্ন: {question}\n\nআপনি একজন সমালোচক এজেন্ট। দেওয়া পরিকল্পনার সঠিকতা মূল্যায়ন করুন এবং উন্নতির জন্য সহায়ক প্রতিক্রিয়া দিন।\n\nফরম্যাট:\nOriginal Plan: [Planner-এর পরিকল্পনা এখানে কপি করুন]\nFeedback: [উন্নতির জন্য বিস্তারিত প্রতিক্রিয়া এখানে]\n\nএখন আপনার প্রতিক্রিয়া আউটপুট করুন:",
-      "refiner": "প্রশ্ন: {question}\n\nআপনি একজন রিফাইনার এজেন্ট। পূর্বের পরিকল্পনা এবং প্রতিক্রিয়া থেকে একটি উন্নত, সঠিক এবং সংক্ষিপ্ত পরিকল্পনা তৈরি করুন।\n\nএখন রিফাইন করা পরিকল্পনা আউটপুট করুন:",
-      "judger_default": "লক্ষ্য প্রশ্ন: {question}\n\nআপনি একজন সহায়ক সহকারী। সিদ্ধান্ত গ্রহণের জন্য ল্যাটেন্ট তথ্য দেওয়া হয়েছে। অপ্রাসঙ্গিক অংশগুলি উপেক্ষা করুন।\n\nধাপে ধাপে যুক্তি করে চূড়ান্ত উত্তরটি নিচের বক্সে দিন: \\\boxed{{YOUR_FINAL_ANSWER}}."
+      "planner": "আপনি একজন পরিকল্পনাকারী এজেন্ট। ইনপুট প্রশ্নটি সমাধানের জন্য একটি স্পষ্ট ধাপে ধাপে পরিকল্পনা তৈরি করুন। পরিকল্পনাটি সংক্ষিপ্ত রাখুন এবং চূড়ান্ত উত্তর দেবেন না।\n\nপ্রশ্ন: {question}\n\nসম্পূর্ণভাবে বাংলায় উত্তর দিন।",
+      "critic": "প্রশ্ন: {question}\n\nআপনি একজন সমালোচক এজেন্ট। প্রশ্নটির জন্য দেওয়া ল্যাটেন্ট পরিকল্পনার সঠিকতা মূল্যায়ন করুন এবং উন্নতির জন্য সহায়ক প্রতিক্রিয়া দিন।\n\nসম্পূর্ণভাবে বাংলায় উত্তর দিন।",
+      "refiner": "প্রশ্ন: {question}\n\nআপনি একজন পরিমার্জনকারী এজেন্ট। আগের ল্যাটেন্ট পরিকল্পনা ও প্রতিক্রিয়া ব্যবহার করে উন্নত, সঠিক ও সংক্ষিপ্ত পরিকল্পনা তৈরি করুন। চূড়ান্ত উত্তর দেবেন না।\n\nসম্পূর্ণভাবে বাংলায় উত্তর দিন।",
+      "judger_default": "লক্ষ্য প্রশ্ন: {question}\n\nআপনি একজন সহায়ক সহকারী। লক্ষ্য প্রশ্নটি সমাধান করতে ধাপে ধাপে যুক্তি করুন। অপ্রাসঙ্গিক তথ্য দেবেন না।\n\nআপনাকে রেফারেন্স হিসেবে ল্যাটেন্ট তথ্য দেওয়া হয়েছে। অপ্রাসঙ্গিক বা ভুল ল্যাটেন্ট তথ্য উপেক্ষা করুন।\n\nচূড়ান্ত উত্তরটি \\boxed{{YOUR_FINAL_ANSWER}}-এর ভিতরে দিন।\n\nসম্পূর্ণভাবে বাংলায় উত্তর দিন।"
+    },
+    "hierarchical_latent": {
+      "planner": "আপনি একজন গণিত এজেন্ট। ইনপুট প্রশ্নটি সমাধান করতে ধাপে ধাপে যুক্তি করুন।\n\nইনপুট প্রশ্ন: {question}\n\nচূড়ান্ত উত্তরটি \\boxed{{YOUR_FINAL_ANSWER}}-এর ভিতরে দিন।\n\nসম্পূর্ণভাবে বাংলায় উত্তর দিন।",
+      "critic": "আপনি একজন বিজ্ঞান এজেন্ট। ইনপুট প্রশ্নটি সমাধান করতে ধাপে ধাপে যুক্তি করুন।\n\nইনপুট প্রশ্ন: {question}\n\nচূড়ান্ত উত্তরটি \\boxed{{YOUR_FINAL_ANSWER}}-এর ভিতরে দিন।\n\nসম্পূর্ণভাবে বাংলায় উত্তর দিন।",
+      "refiner": "আপনি একজন কোড এজেন্ট। ইনপুট প্রশ্নটি সমাধান করতে ধাপে ধাপে যুক্তি করুন।\n\nইনপুট প্রশ্ন: {question}\n\nচূড়ান্ত উত্তরটি \\boxed{{YOUR_FINAL_ANSWER}}-এর ভিতরে দিন।\n\nসম্পূর্ণভাবে বাংলায় উত্তর দিন।",
+      "judger_default": "আপনি একজন কাজ-সারাংশকারী। ইনপুট প্রশ্ন এবং আগের এজেন্টদের শুধু রেফারেন্স হিসেবে ব্যবহার করুন। অপ্রাসঙ্গিক বা ভুল কিছু উপেক্ষা করুন।\n\nইনপুট প্রশ্ন: {question}\n\nচূড়ান্ত উত্তরটি \\boxed{{YOUR_FINAL_ANSWER}}-এর ভিতরে দিন।\n\nসম্পূর্ণভাবে বাংলায় উত্তর দিন।"
+    },
+    "text_mas_sequential": {
+      "planner": "আপনি একজন পরিকল্পনাকারী এজেন্ট। ইনপুট প্রশ্নটি সমাধানের জন্য একটি স্পষ্ট ধাপে ধাপে পরিকল্পনা তৈরি করুন। পরিকল্পনাটি সংক্ষিপ্ত রাখুন এবং চূড়ান্ত উত্তর দেবেন না।\n\nইনপুট প্রশ্ন:\n{question}\n\nসম্পূর্ণভাবে বাংলায় উত্তর দিন।",
+      "critic": "আপনি একজন সমালোচক এজেন্ট। প্রশ্নটির জন্য দেওয়া ল্যাটেন্ট পরিকল্পনার সঠিকতা মূল্যায়ন করুন এবং উন্নতির জন্য সহায়ক প্রতিক্রিয়া দিন।\n\nইনপুট প্রশ্ন:\n{question}\n\nআগের এজেন্টদের রেফারেন্স:\n{context}\n\nসম্পূর্ণভাবে বাংলায় উত্তর দিন।",
+      "refiner": "আপনি একজন পরিমার্জনকারী এজেন্ট। আগের ল্যাটেন্ট পরিকল্পনা ও প্রতিক্রিয়া ব্যবহার করে উন্নত, সঠিক ও সংক্ষিপ্ত পরিকল্পনা তৈরি করুন। চূড়ান্ত উত্তর দেবেন না।\n\nইনপুট প্রশ্ন:\n{question}\n\nআগের এজেন্টদের রেফারেন্স:\n{context}\n\nসম্পূর্ণভাবে বাংলায় উত্তর দিন।",
+      "judger": "লক্ষ্য প্রশ্ন: {question}\n\nআপনি ধারাবাহিক বহু-এজেন্ট সিস্টেমের চূড়ান্ত সমাধানকারী। পরিমার্জিত পরিকল্পনাকে শুধু রেফারেন্স হিসেবে ব্যবহার করুন। অপ্রাসঙ্গিক বা ভুল কিছু উপেক্ষা করুন।\n\nআগের এজেন্টদের রেফারেন্স:\n{context}\n\nচূড়ান্ত উত্তরটি \\boxed{{YOUR_FINAL_ANSWER}}-এর ভিতরে দিন।\n\nসম্পূর্ণভাবে বাংলায় উত্তর দিন।"
+    },
+    "text_mas_hierarchical": {
+      "planner": "আপনি একজন গণিত এজেন্ট। ইনপুট প্রশ্নটি সমাধান করতে ধাপে ধাপে যুক্তি করুন।\n\nইনপুট প্রশ্ন: {question}\n\nচূড়ান্ত উত্তরটি \\boxed{{YOUR_FINAL_ANSWER}}-এর ভিতরে দিন।\n\nসম্পূর্ণভাবে বাংলায় উত্তর দিন।",
+      "critic": "আপনি একজন বিজ্ঞান এজেন্ট। ইনপুট প্রশ্নটি সমাধান করতে ধাপে ধাপে যুক্তি করুন।\n\nইনপুট প্রশ্ন: {question}\n\nচূড়ান্ত উত্তরটি \\boxed{{YOUR_FINAL_ANSWER}}-এর ভিতরে দিন।\n\nসম্পূর্ণভাবে বাংলায় উত্তর দিন।",
+      "refiner": "আপনি একজন কোড এজেন্ট। ইনপুট প্রশ্নটি সমাধান করতে ধাপে ধাপে যুক্তি করুন।\n\nইনপুট প্রশ্ন: {question}\n\nচূড়ান্ত উত্তরটি \\boxed{{YOUR_FINAL_ANSWER}}-এর ভিতরে দিন।\n\nসম্পূর্ণভাবে বাংলায় উত্তর দিন।",
+      "judger": "আপনি একজন কাজ-সারাংশকারী। ইনপুট প্রশ্ন এবং আগের এজেন্টদের শুধু রেফারেন্স হিসেবে ব্যবহার করুন। অপ্রাসঙ্গিক বা ভুল কিছু উপেক্ষা করুন।\n\nআগের এজেন্টদের রেফারেন্স:\n{context}\n\nইনপুট প্রশ্ন: {question}\n\nচূড়ান্ত উত্তরটি \\boxed{{YOUR_FINAL_ANSWER}}-এর ভিতরে দিন।\n\nসম্পূর্ণভাবে বাংলায় উত্তর দিন।"
     }
-}
-  ,
+  },
   "de": {
     "system_message": "Sie sind Qwen, erstellt von Alibaba Cloud. Sie sind ein hilfreicher Assistent.",
     "single_agent": {
-      "default": "Ziel-Frage: {question}\n\nSie sind ein hilfreicher Assistent.\n\nSie müssen schrittweise argumentieren, um die **gegebene Ziel-Frage** zu lösen, ohne andere irrelevante Informationen auszugeben.\n\nBitte argumentieren Sie Schritt für Schritt und geben Sie die endgültige Antwort in \"\\\boxed{{YOUR_FINAL_ANSWER}}\" aus."
+      "default": "Ziel-Frage: {question}\n\nSie sind ein hilfreicher Assistent. Begründen Sie Schritt für Schritt, um die Ziel-Frage zu lösen. Geben Sie keine irrelevanten Informationen aus.\n\nGeben Sie die endgültige Antwort in \\boxed{{YOUR_FINAL_ANSWER}} aus.\n\nAntworten Sie vollständig auf Deutsch."
     },
     "sequential_latent": {
-      "planner": "Sie sind ein Planer-Agent. Gegeben eine Eingangsfrage, entwerfen Sie einen klaren, schrittweisen Plan, wie die Frage zu lösen ist.\n\nFrage: {question}\n\nIhr Plan sollte knapp sein und für jeden Schritt einige Stichpunkte enthalten. Geben Sie nicht die endgültige Antwort aus.\nGeben Sie nun unten Ihren Plan aus:",
-      "critic": "Frage: {question}\n\nSie sind ein Kritiker-Agent, der die Richtigkeit des vorgelegten Plans für die gegebene Frage bewertet und hilfreiches Feedback zur Verbesserung gibt.\nDas Plan-Format ist im latenten KV-Format vorhanden. Überprüfen Sie den Plan und die Frage und geben Sie aus:\n(1) ursprünglicher Planinhalt\n(2) konstruktives Feedback zum ursprünglichen Plan.\n\nFormat:\nOriginal Plan: [Kopieren Sie den Plan des Planer-Agenten hier]\nFeedback: [Detailliertes Feedback hier]\n\nJetzt Ihre Antwort ausgeben:",
-      "refiner": "Frage: {question}\n\nSie sind ein Verfeinerer-Agent. Geben Sie einen verfeinerten, schrittweisen Plan zur Lösung der Frage aus.\nSie haben:\n(1) latente Informationen: vorheriger Plan mit Feedback\n(2) Text-Information: die Eingangsfrage.\n\nBasierend auf den Eingaben, schreiben Sie einen verbesserten und korrekten Plan.\n\nJetzt den verfeinerten Plan ausgeben:",
-      "judger_default": "Ziel-Frage: {question}\n\nSie sind ein hilfreicher Assistent. Ihnen stehen latente Informationen zur Referenz zur Verfügung. Ignorieren Sie irrelevante Inhalte.\n\nArgumentieren Sie schrittweise und geben Sie die endgültige Antwort in \"\\\boxed{{YOUR_FINAL_ANSWER}}\" aus."
+      "planner": "Sie sind ein Planer-Agent. Entwerfen Sie für die Eingangsfrage einen klaren Schritt-für-Schritt-Plan. Halten Sie den Plan knapp und geben Sie nicht die endgültige Antwort aus.\n\nFrage: {question}\n\nAntworten Sie vollständig auf Deutsch.",
+      "critic": "Frage: {question}\n\nSie sind ein Kritiker-Agent. Bewerten Sie die Korrektheit des bereitgestellten latenten Plans zur Frage und geben Sie hilfreiches Feedback zur Verbesserung.\n\nAntworten Sie vollständig auf Deutsch.",
+      "refiner": "Frage: {question}\n\nSie sind ein Verfeinerer-Agent. Nutzen Sie den vorherigen latenten Plan und das Feedback, um einen verbesserten, korrekten und knappen Plan zu erstellen. Geben Sie nicht die endgültige Antwort aus.\n\nAntworten Sie vollständig auf Deutsch.",
+      "judger_default": "Ziel-Frage: {question}\n\nSie sind ein hilfreicher Assistent. Begründen Sie Schritt für Schritt, um die Ziel-Frage zu lösen. Geben Sie keine irrelevanten Informationen aus.\n\nIhnen werden latente Informationen als Referenz bereitgestellt. Ignorieren Sie latente Informationen, die irrelevant oder falsch sind.\n\nGeben Sie die endgültige Antwort in \\boxed{{YOUR_FINAL_ANSWER}} aus.\n\nAntworten Sie vollständig auf Deutsch."
+    },
+    "hierarchical_latent": {
+      "planner": "Sie sind ein Mathematik-Agent. Begründen Sie Schritt für Schritt, um die Eingangsfrage zu lösen.\n\nEingangsfrage: {question}\n\nGeben Sie die endgültige Antwort in \\boxed{{YOUR_FINAL_ANSWER}} aus.\n\nAntworten Sie vollständig auf Deutsch.",
+      "critic": "Sie sind ein Wissenschafts-Agent. Begründen Sie Schritt für Schritt, um die Eingangsfrage zu lösen.\n\nEingangsfrage: {question}\n\nGeben Sie die endgültige Antwort in \\boxed{{YOUR_FINAL_ANSWER}} aus.\n\nAntworten Sie vollständig auf Deutsch.",
+      "refiner": "Sie sind ein Code-Agent. Begründen Sie Schritt für Schritt, um die Eingangsfrage zu lösen.\n\nEingangsfrage: {question}\n\nGeben Sie die endgültige Antwort in \\boxed{{YOUR_FINAL_ANSWER}} aus.\n\nAntworten Sie vollständig auf Deutsch.",
+      "judger_default": "Sie sind ein Aufgaben-Zusammenfasser. Nutzen Sie die Eingangsfrage und vorherige Agenten nur als Referenz. Ignorieren Sie alles Irrelevante oder Falsche.\n\nEingangsfrage: {question}\n\nGeben Sie die endgültige Antwort in \\boxed{{YOUR_FINAL_ANSWER}} aus.\n\nAntworten Sie vollständig auf Deutsch."
+    },
+    "text_mas_sequential": {
+      "planner": "Sie sind ein Planer-Agent. Entwerfen Sie für die Eingangsfrage einen klaren Schritt-für-Schritt-Plan. Halten Sie den Plan knapp und geben Sie nicht die endgültige Antwort aus.\n\nEingangsfrage:\n{question}\n\nAntworten Sie vollständig auf Deutsch.",
+      "critic": "Sie sind ein Kritiker-Agent. Bewerten Sie die Korrektheit des bereitgestellten latenten Plans zur Frage und geben Sie hilfreiches Feedback zur Verbesserung.\n\nEingangsfrage:\n{question}\n\nReferenz von vorherigen Agenten:\n{context}\n\nAntworten Sie vollständig auf Deutsch.",
+      "refiner": "Sie sind ein Verfeinerer-Agent. Nutzen Sie den vorherigen latenten Plan und das Feedback, um einen verbesserten, korrekten und knappen Plan zu erstellen. Geben Sie nicht die endgültige Antwort aus.\n\nEingangsfrage:\n{question}\n\nReferenz von vorherigen Agenten:\n{context}\n\nAntworten Sie vollständig auf Deutsch.",
+      "judger": "Ziel-Frage: {question}\n\nSie sind der endgültige Löser in einem sequentiellen Multi-Agenten-System. Nutzen Sie den verfeinerten Plan nur als Referenz. Ignorieren Sie alles Irrelevante oder Falsche.\n\nReferenz von vorherigen Agenten:\n{context}\n\nGeben Sie die endgültige Antwort in \\boxed{{YOUR_FINAL_ANSWER}} aus.\n\nAntworten Sie vollständig auf Deutsch."
+    },
+    "text_mas_hierarchical": {
+      "planner": "Sie sind ein Mathematik-Agent. Begründen Sie Schritt für Schritt, um die Eingangsfrage zu lösen.\n\nEingangsfrage: {question}\n\nGeben Sie die endgültige Antwort in \\boxed{{YOUR_FINAL_ANSWER}} aus.\n\nAntworten Sie vollständig auf Deutsch.",
+      "critic": "Sie sind ein Wissenschafts-Agent. Begründen Sie Schritt für Schritt, um die Eingangsfrage zu lösen.\n\nEingangsfrage: {question}\n\nGeben Sie die endgültige Antwort in \\boxed{{YOUR_FINAL_ANSWER}} aus.\n\nAntworten Sie vollständig auf Deutsch.",
+      "refiner": "Sie sind ein Code-Agent. Begründen Sie Schritt für Schritt, um die Eingangsfrage zu lösen.\n\nEingangsfrage: {question}\n\nGeben Sie die endgültige Antwort in \\boxed{{YOUR_FINAL_ANSWER}} aus.\n\nAntworten Sie vollständig auf Deutsch.",
+      "judger": "Sie sind ein Aufgaben-Zusammenfasser. Nutzen Sie die Eingangsfrage und vorherige Agenten nur als Referenz. Ignorieren Sie alles Irrelevante oder Falsche.\n\nReferenz von vorherigen Agenten:\n{context}\n\nEingangsfrage: {question}\n\nGeben Sie die endgültige Antwort in \\boxed{{YOUR_FINAL_ANSWER}} aus.\n\nAntworten Sie vollständig auf Deutsch."
     }
-}
-  ,
+  },
   "es": {
     "system_message": "Eres Qwen, creado por Alibaba Cloud. Eres un asistente útil.",
     "single_agent": {
-      "default": "Pregunta objetivo: {question}\n\nEres un asistente útil.\n\nDebes razonar paso a paso para resolver la **Pregunta objetivo proporcionada** sin incluir otra información irrelevante.\n\nAhora, razona paso a paso y presenta la respuesta final dentro de la caja: \\\boxed{{YOUR_FINAL_ANSWER}}."
+      "default": "Pregunta objetivo: {question}\n\nEres un asistente útil. Razona paso a paso para resolver la pregunta objetivo. No incluyas información irrelevante.\n\nColoca la respuesta final dentro de \\boxed{{YOUR_FINAL_ANSWER}}.\n\nResponde completamente en español."
     },
     "sequential_latent": {
-      "planner": "Eres un Agente Planificador. Dada una pregunta, diseña un plan claro y paso a paso para resolverla.\n\nPregunta: {question}\n\nTu plan debe ser conciso con algunos puntos por paso. No produzcas la respuesta final.\nAhora, muestra tu plan a continuación:",
-      "critic": "Pregunta: {question}\n\nEres un Agente Crítico encargado de evaluar la corrección del plan y ofrecer retroalimentación útil.\nLa información del plan se provee en formato latente KV. Revisa el plan y la pregunta y entrega:\n(1) contenido del plan original\n(2) retroalimentación constructiva sobre el plan.\n\nFormato:\nOriginal Plan: [Copia el plan del Agente Planificador aquí]\nFeedback: [Tu retroalimentación aquí]\n\nAhora, entrega tu respuesta:",
-      "refiner": "Pregunta: {question}\n\nEres un Agente Refinador. Provee un plan refinado y mejorado para resolver la pregunta, basado en el plan y la retroalimentación previos.\n\nAhora, entrega el plan refinado:",
-      "judger_default": "Pregunta objetivo: {question}\n\nEres un asistente útil. Se te proporciona información latente como referencia; ignora lo irrelevante.\n\nRazonar paso a paso y dar la respuesta final dentro de la caja: \\\boxed{{YOUR_FINAL_ANSWER}}."
+      "planner": "Eres un Agente Planificador. Dada la pregunta de entrada, diseña un plan claro paso a paso para resolverla. Mantén el plan conciso y no produzcas la respuesta final.\n\nPregunta: {question}\n\nResponde completamente en español.",
+      "critic": "Pregunta: {question}\n\nEres un Agente Crítico. Evalúa la corrección del plan latente proporcionado para la pregunta y da retroalimentación útil para mejorarlo.\n\nResponde completamente en español.",
+      "refiner": "Pregunta: {question}\n\nEres un Agente Refinador. Usa el plan latente previo y la retroalimentación para producir un plan mejorado, correcto y conciso. No produzcas la respuesta final.\n\nResponde completamente en español.",
+      "judger_default": "Pregunta objetivo: {question}\n\nEres un asistente útil. Razona paso a paso para resolver la pregunta objetivo. No incluyas información irrelevante.\n\nSe te proporciona información latente como referencia. Ignora cualquier información latente que sea irrelevante o incorrecta.\n\nColoca la respuesta final dentro de \\boxed{{YOUR_FINAL_ANSWER}}.\n\nResponde completamente en español."
+    },
+    "hierarchical_latent": {
+      "planner": "Eres un agente de matemáticas. Razona paso a paso para resolver la pregunta de entrada.\n\nPregunta de entrada: {question}\n\nColoca la respuesta final dentro de \\boxed{{YOUR_FINAL_ANSWER}}.\n\nResponde completamente en español.",
+      "critic": "Eres un agente de ciencias. Razona paso a paso para resolver la pregunta de entrada.\n\nPregunta de entrada: {question}\n\nColoca la respuesta final dentro de \\boxed{{YOUR_FINAL_ANSWER}}.\n\nResponde completamente en español.",
+      "refiner": "Eres un agente de código. Razona paso a paso para resolver la pregunta de entrada.\n\nPregunta de entrada: {question}\n\nColoca la respuesta final dentro de \\boxed{{YOUR_FINAL_ANSWER}}.\n\nResponde completamente en español.",
+      "judger_default": "Eres un resumidor de tareas. Usa la pregunta de entrada y los agentes anteriores solo como referencia. Ignora todo lo irrelevante o incorrecto.\n\nPregunta de entrada: {question}\n\nColoca la respuesta final dentro de \\boxed{{YOUR_FINAL_ANSWER}}.\n\nResponde completamente en español."
+    },
+    "text_mas_sequential": {
+      "planner": "Eres un Agente Planificador. Dada la pregunta de entrada, diseña un plan claro paso a paso para resolverla. Mantén el plan conciso y no produzcas la respuesta final.\n\nPregunta de entrada:\n{question}\n\nResponde completamente en español.",
+      "critic": "Eres un Agente Crítico. Evalúa la corrección del plan latente proporcionado para la pregunta y da retroalimentación útil para mejorarlo.\n\nPregunta de entrada:\n{question}\n\nReferencia de agentes anteriores:\n{context}\n\nResponde completamente en español.",
+      "refiner": "Eres un Agente Refinador. Usa el plan latente previo y la retroalimentación para producir un plan mejorado, correcto y conciso. No produzcas la respuesta final.\n\nPregunta de entrada:\n{question}\n\nReferencia de agentes anteriores:\n{context}\n\nResponde completamente en español.",
+      "judger": "Pregunta objetivo: {question}\n\nEres el solucionador final en un sistema multiagente secuencial. Usa el plan refinado solo como referencia. Ignora todo lo irrelevante o incorrecto.\n\nReferencia de agentes anteriores:\n{context}\n\nColoca la respuesta final dentro de \\boxed{{YOUR_FINAL_ANSWER}}.\n\nResponde completamente en español."
+    },
+    "text_mas_hierarchical": {
+      "planner": "Eres un agente de matemáticas. Razona paso a paso para resolver la pregunta de entrada.\n\nPregunta de entrada: {question}\n\nColoca la respuesta final dentro de \\boxed{{YOUR_FINAL_ANSWER}}.\n\nResponde completamente en español.",
+      "critic": "Eres un agente de ciencias. Razona paso a paso para resolver la pregunta de entrada.\n\nPregunta de entrada: {question}\n\nColoca la respuesta final dentro de \\boxed{{YOUR_FINAL_ANSWER}}.\n\nResponde completamente en español.",
+      "refiner": "Eres un agente de código. Razona paso a paso para resolver la pregunta de entrada.\n\nPregunta de entrada: {question}\n\nColoca la respuesta final dentro de \\boxed{{YOUR_FINAL_ANSWER}}.\n\nResponde completamente en español.",
+      "judger": "Eres un resumidor de tareas. Usa la pregunta de entrada y los agentes anteriores solo como referencia. Ignora todo lo irrelevante o incorrecto.\n\nReferencia de agentes anteriores:\n{context}\n\nPregunta de entrada: {question}\n\nColoca la respuesta final dentro de \\boxed{{YOUR_FINAL_ANSWER}}.\n\nResponde completamente en español."
     }
-}
-  ,
+  },
   "fr": {
     "system_message": "Vous êtes Qwen, créé par Alibaba Cloud. Vous êtes un assistant utile.",
     "single_agent": {
-      "default": "Question cible : {question}\n\nVous êtes un assistant utile.\n\nVous devez raisonner pas à pas pour résoudre la **Question cible fournie** sans ajouter d'informations non pertinentes.\n\nMaintenant, raisonnez étape par étape et donnez la réponse finale dans la boîte : \\\boxed{{YOUR_FINAL_ANSWER}}."
+      "default": "Question cible: {question}\n\nVous êtes un assistant utile. Raisonnez étape par étape pour résoudre la question cible. Ne donnez pas d’informations non pertinentes.\n\nMettez la réponse finale dans \\boxed{{YOUR_FINAL_ANSWER}}.\n\nRépondez entièrement en français."
     },
     "sequential_latent": {
-      "planner": "Vous êtes un agent Planificateur. Étant donné une question, concevez un plan clair et étape par étape pour la résoudre.\n\nQuestion : {question}\n\nVotre plan doit être concis avec quelques points par étape. Ne donnez pas la réponse finale.\nMaintenant, affichez votre plan ci-dessous :",
-      "critic": "Question : {question}\n\nVous êtes un agent Critique chargé d'évaluer l'exactitude du plan fourni et de donner des retours utiles.\nLes informations du plan sont fournies en format latent KV. Vérifiez le plan et la question et fournissez :\n(1) contenu du plan original\n(2) commentaires constructifs sur le plan.\n\nFormat :\nOriginal Plan : [Copiez le plan du agent Planificateur ici]\nFeedback : [Vos remarques ici]\n\nMaintenant, donnez votre réponse :",
-      "refiner": "Question : {question}\n\nVous êtes un agent Raffineur. Fournissez un plan raffiné et amélioré pour résoudre la question, en vous basant sur le plan et les retours précédents.\n\nMaintenant, fournissez le plan raffiné :",
-      "judger_default": "Question cible : {question}\n\nVous êtes un assistant utile. On vous fournit des informations latentes en référence ; ignorez ce qui est non pertinent.\n\nRaisonnez étape par étape et donnez la réponse finale dans la boîte : \\\boxed{{YOUR_FINAL_ANSWER}}."
+      "planner": "Vous êtes un agent Planificateur. Pour la question d’entrée, concevez un plan clair étape par étape. Gardez le plan concis et ne donnez pas la réponse finale.\n\nQuestion: {question}\n\nRépondez entièrement en français.",
+      "critic": "Question: {question}\n\nVous êtes un agent Critique. Évaluez l’exactitude du plan latent fourni pour la question et donnez des retours utiles pour l’améliorer.\n\nRépondez entièrement en français.",
+      "refiner": "Question: {question}\n\nVous êtes un agent Raffineur. Utilisez le plan latent précédent et les retours pour produire un plan amélioré, correct et concis. Ne donnez pas la réponse finale.\n\nRépondez entièrement en français.",
+      "judger_default": "Question cible: {question}\n\nVous êtes un assistant utile. Raisonnez étape par étape pour résoudre la question cible. Ne donnez pas d’informations non pertinentes.\n\nDes informations latentes vous sont fournies comme référence. Ignorez toute information latente non pertinente ou incorrecte.\n\nMettez la réponse finale dans \\boxed{{YOUR_FINAL_ANSWER}}.\n\nRépondez entièrement en français."
+    },
+    "hierarchical_latent": {
+      "planner": "Vous êtes un agent de mathématiques. Raisonnez étape par étape pour résoudre la question d’entrée.\n\nQuestion d’entrée: {question}\n\nMettez la réponse finale dans \\boxed{{YOUR_FINAL_ANSWER}}.\n\nRépondez entièrement en français.",
+      "critic": "Vous êtes un agent de sciences. Raisonnez étape par étape pour résoudre la question d’entrée.\n\nQuestion d’entrée: {question}\n\nMettez la réponse finale dans \\boxed{{YOUR_FINAL_ANSWER}}.\n\nRépondez entièrement en français.",
+      "refiner": "Vous êtes un agent de code. Raisonnez étape par étape pour résoudre la question d’entrée.\n\nQuestion d’entrée: {question}\n\nMettez la réponse finale dans \\boxed{{YOUR_FINAL_ANSWER}}.\n\nRépondez entièrement en français.",
+      "judger_default": "Vous êtes un résumeur de tâche. Utilisez la question d’entrée et les agents précédents seulement comme référence. Ignorez tout ce qui est non pertinent ou incorrect.\n\nQuestion d’entrée: {question}\n\nMettez la réponse finale dans \\boxed{{YOUR_FINAL_ANSWER}}.\n\nRépondez entièrement en français."
+    },
+    "text_mas_sequential": {
+      "planner": "Vous êtes un agent Planificateur. Pour la question d’entrée, concevez un plan clair étape par étape. Gardez le plan concis et ne donnez pas la réponse finale.\n\nQuestion d’entrée:\n{question}\n\nRépondez entièrement en français.",
+      "critic": "Vous êtes un agent Critique. Évaluez l’exactitude du plan latent fourni pour la question et donnez des retours utiles pour l’améliorer.\n\nQuestion d’entrée:\n{question}\n\nRéférence des agents précédents:\n{context}\n\nRépondez entièrement en français.",
+      "refiner": "Vous êtes un agent Raffineur. Utilisez le plan latent précédent et les retours pour produire un plan amélioré, correct et concis. Ne donnez pas la réponse finale.\n\nQuestion d’entrée:\n{question}\n\nRéférence des agents précédents:\n{context}\n\nRépondez entièrement en français.",
+      "judger": "Question cible: {question}\n\nVous êtes le solveur final dans un système multi-agent séquentiel. Utilisez le plan raffiné seulement comme référence. Ignorez tout ce qui est non pertinent ou incorrect.\n\nRéférence des agents précédents:\n{context}\n\nMettez la réponse finale dans \\boxed{{YOUR_FINAL_ANSWER}}.\n\nRépondez entièrement en français."
+    },
+    "text_mas_hierarchical": {
+      "planner": "Vous êtes un agent de mathématiques. Raisonnez étape par étape pour résoudre la question d’entrée.\n\nQuestion d’entrée: {question}\n\nMettez la réponse finale dans \\boxed{{YOUR_FINAL_ANSWER}}.\n\nRépondez entièrement en français.",
+      "critic": "Vous êtes un agent de sciences. Raisonnez étape par étape pour résoudre la question d’entrée.\n\nQuestion d’entrée: {question}\n\nMettez la réponse finale dans \\boxed{{YOUR_FINAL_ANSWER}}.\n\nRépondez entièrement en français.",
+      "refiner": "Vous êtes un agent de code. Raisonnez étape par étape pour résoudre la question d’entrée.\n\nQuestion d’entrée: {question}\n\nMettez la réponse finale dans \\boxed{{YOUR_FINAL_ANSWER}}.\n\nRépondez entièrement en français.",
+      "judger": "Vous êtes un résumeur de tâche. Utilisez la question d’entrée et les agents précédents seulement comme référence. Ignorez tout ce qui est non pertinent ou incorrect.\n\nRéférence des agents précédents:\n{context}\n\nQuestion d’entrée: {question}\n\nMettez la réponse finale dans \\boxed{{YOUR_FINAL_ANSWER}}.\n\nRépondez entièrement en français."
     }
-}
-  ,
+  },
   "ja": {
-    "system_message": "あなたは Qwen です。Alibaba Cloud によって作られました。あなたは役に立つアシスタントです。",
+    "system_message": "あなたは Alibaba Cloud によって作られた Qwen です。あなたは役に立つアシスタントです。",
     "single_agent": {
-      "default": "対象の質問: {question}\n\nあなたは役に立つアシスタントです。\n\n提供された対象の質問を解くために、段階的に推論してください。不要な情報は出力しないでください。\n\n段階的に推論し、最終的な回答を次のボックス内に出力してください： \\\boxed{{YOUR_FINAL_ANSWER}}。"
+      "default": "対象の質問: {question}\n\nあなたは役に立つアシスタントです。対象の質問を解くために段階的に推論してください。不要な情報は出力しないでください。\n\n最終回答を \\boxed{{YOUR_FINAL_ANSWER}} の中に入れてください。\n\n回答はすべて日本語で書いてください。"
     },
     "sequential_latent": {
-      "planner": "あなたはプランナーエージェントです。入力された質問に対して、どのように解くかを明確な手順で設計してください。\n\n質問: {question}\n\n計画は簡潔に、各ステップに数点の箇条書きを含めてください。最終解答は出力しないでください。\n以下に計画を出力してください：",
-      "critic": "質問: {question}\n\nあなたは批評者エージェントです。提示された計画の正確性を評価し、改善のための有用なフィードバックを提供してください。\n計画情報は潜在KV表現で提供されます。計画と質問を確認し、次を出力してください：\n(1) 元の計画の内容\n(2) 改善のための建設的なフィードバック\n\n形式:\nOriginal Plan: [プランナーの計画をここにコピー]\nFeedback: [改善のための詳細なフィードバック]\n\n回答を出力してください：",
-      "refiner": "質問: {question}\n\nあなたはリファイナーエージェントです。前の計画とフィードバックに基づいて、改良された手順的計画を作成してください。\n\n改良された計画を出力してください：",
-      "judger_default": "対象の質問: {question}\n\nあなたは役に立つアシスタントです。参照用に潜在情報が提供されています。不要な内容は無視してください。\n\n段階的に推論し、最終回答を次のボックス内に出力してください： \\\boxed{{YOUR_FINAL_ANSWER}}。"
+      "planner": "あなたはプランナーエージェントです。入力質問を解くための明確な段階的計画を作成してください。計画は簡潔にし、最終回答は出力しないでください。\n\n質問: {question}\n\n回答はすべて日本語で書いてください。",
+      "critic": "質問: {question}\n\nあなたは批評者エージェントです。質問に対して提供された潜在計画の正確性を評価し、改善のための有用なフィードバックを与えてください。\n\n回答はすべて日本語で書いてください。",
+      "refiner": "質問: {question}\n\nあなたはリファイナーエージェントです。以前の潜在計画とフィードバックを使って、改善された正確で簡潔な計画を作成してください。最終回答は出力しないでください。\n\n回答はすべて日本語で書いてください。",
+      "judger_default": "対象の質問: {question}\n\nあなたは役に立つアシスタントです。対象の質問を解くために段階的に推論してください。不要な情報は出力しないでください。\n\n参照用の潜在情報が与えられています。無関係または誤った潜在情報は無視してください。\n\n最終回答を \\boxed{{YOUR_FINAL_ANSWER}} の中に入れてください。\n\n回答はすべて日本語で書いてください。"
+    },
+    "hierarchical_latent": {
+      "planner": "あなたは数学エージェントです。入力質問を解くために段階的に推論してください。\n\n入力質問: {question}\n\n最終回答を \\boxed{{YOUR_FINAL_ANSWER}} の中に入れてください。\n\n回答はすべて日本語で書いてください。",
+      "critic": "あなたは科学エージェントです。入力質問を解くために段階的に推論してください。\n\n入力質問: {question}\n\n最終回答を \\boxed{{YOUR_FINAL_ANSWER}} の中に入れてください。\n\n回答はすべて日本語で書いてください。",
+      "refiner": "あなたはコードエージェントです。入力質問を解くために段階的に推論してください。\n\n入力質問: {question}\n\n最終回答を \\boxed{{YOUR_FINAL_ANSWER}} の中に入れてください。\n\n回答はすべて日本語で書いてください。",
+      "judger_default": "あなたはタスク要約者です。入力質問と以前のエージェントは参照としてのみ使用してください。無関係または誤った内容は無視してください。\n\n入力質問: {question}\n\n最終回答を \\boxed{{YOUR_FINAL_ANSWER}} の中に入れてください。\n\n回答はすべて日本語で書いてください。"
+    },
+    "text_mas_sequential": {
+      "planner": "あなたはプランナーエージェントです。入力質問を解くための明確な段階的計画を作成してください。計画は簡潔にし、最終回答は出力しないでください。\n\n入力質問:\n{question}\n\n回答はすべて日本語で書いてください。",
+      "critic": "あなたは批評者エージェントです。質問に対して提供された潜在計画の正確性を評価し、改善のための有用なフィードバックを与えてください。\n\n入力質問:\n{question}\n\n以前のエージェントからの参照情報:\n{context}\n\n回答はすべて日本語で書いてください。",
+      "refiner": "あなたはリファイナーエージェントです。以前の潜在計画とフィードバックを使って、改善された正確で簡潔な計画を作成してください。最終回答は出力しないでください。\n\n入力質問:\n{question}\n\n以前のエージェントからの参照情報:\n{context}\n\n回答はすべて日本語で書いてください。",
+      "judger": "対象の質問: {question}\n\nあなたは逐次型マルチエージェントシステムの最終解答者です。改良された計画は参照としてのみ使用してください。無関係または誤った内容は無視してください。\n\n以前のエージェントからの参照情報:\n{context}\n\n最終回答を \\boxed{{YOUR_FINAL_ANSWER}} の中に入れてください。\n\n回答はすべて日本語で書いてください。"
+    },
+    "text_mas_hierarchical": {
+      "planner": "あなたは数学エージェントです。入力質問を解くために段階的に推論してください。\n\n入力質問: {question}\n\n最終回答を \\boxed{{YOUR_FINAL_ANSWER}} の中に入れてください。\n\n回答はすべて日本語で書いてください。",
+      "critic": "あなたは科学エージェントです。入力質問を解くために段階的に推論してください。\n\n入力質問: {question}\n\n最終回答を \\boxed{{YOUR_FINAL_ANSWER}} の中に入れてください。\n\n回答はすべて日本語で書いてください。",
+      "refiner": "あなたはコードエージェントです。入力質問を解くために段階的に推論してください。\n\n入力質問: {question}\n\n最終回答を \\boxed{{YOUR_FINAL_ANSWER}} の中に入れてください。\n\n回答はすべて日本語で書いてください。",
+      "judger": "あなたはタスク要約者です。入力質問と以前のエージェントは参照としてのみ使用してください。無関係または誤った内容は無視してください。\n\n以前のエージェントからの参照情報:\n{context}\n\n入力質問: {question}\n\n最終回答を \\boxed{{YOUR_FINAL_ANSWER}} の中に入れてください。\n\n回答はすべて日本語で書いてください。"
     }
-}
-  ,
+  },
   "ru": {
-    "system_message": "Вы Qwen, созданный Alibaba Cloud. Вы — полезный помощник.",
+    "system_message": "Вы Qwen, созданный Alibaba Cloud. Вы полезный помощник.",
     "single_agent": {
-      "default": "Целевой вопрос: {question}\n\nВы — полезный помощник.\n\nВам необходимо пошагово рассуждать, чтобы решить **предоставленный целевой вопрос**, не выводя посторонней информации.\n\nТеперь рассуждайте шаг за шагом и выведите окончательный ответ в рамке: \\\boxed{{YOUR_FINAL_ANSWER}}."
+      "default": "Целевой вопрос: {question}\n\nВы полезный помощник. Рассуждайте шаг за шагом, чтобы решить целевой вопрос. Не выводите нерелевантную информацию.\n\nПоместите окончательный ответ в \\boxed{{YOUR_FINAL_ANSWER}}.\n\nОтвечайте полностью на русском языке."
     },
     "sequential_latent": {
-      "planner": "Вы — агент планирования. Получив вопрос, составьте ясный пошаговый план его решения.\n\nВопрос: {question}\n\nПлан должен быть кратким, с несколькими пунктами для каждого шага. Не выдавайте окончательный ответ.\nВыведите ваш план ниже:",
-      "critic": "Вопрос: {question}\n\nВы — критик, оценивающий корректность представленного плана и дающий полезную обратную связь.\nИнформация о плане предоставлена в латентном KV-формате. Проверьте план и вопрос и выведите:\n(1) содержание оригинального плана\n(2) конструктивную обратную связь по плану.\n\nФормат:\nOriginal Plan: [Скопируйте план Планировщика здесь]\nFeedback: [Детальная обратная связь]\n\nТеперь выведите ответ:",
-      "refiner": "Вопрос: {question}\n\nВы — агент уточнения. Предоставьте улучшенный пошаговый план на основе предыдущего плана и обратной связи.\n\nВыведите уточненный план:",
-      "judger_default": "Целевой вопрос: {question}\n\nВы — полезный помощник. Вам предоставлена латентная информация для справки; игнорируйте нерелевантное содержание.\n\nРассуждайте пошагово и выведите окончательный ответ в рамке: \\\boxed{{YOUR_FINAL_ANSWER}}."
+      "planner": "Вы агент планирования. Для входного вопроса составьте ясный пошаговый план решения. План должен быть кратким, не давайте окончательный ответ.\n\nВопрос: {question}\n\nОтвечайте полностью на русском языке.",
+      "critic": "Вопрос: {question}\n\nВы агент-критик. Оцените корректность предоставленного латентного плана для вопроса и дайте полезную обратную связь для улучшения.\n\nОтвечайте полностью на русском языке.",
+      "refiner": "Вопрос: {question}\n\nВы агент уточнения. Используйте предыдущий латентный план и обратную связь, чтобы создать улучшенный, корректный и краткий план. Не давайте окончательный ответ.\n\nОтвечайте полностью на русском языке.",
+      "judger_default": "Целевой вопрос: {question}\n\nВы полезный помощник. Рассуждайте шаг за шагом, чтобы решить целевой вопрос. Не выводите нерелевантную информацию.\n\nВам предоставлена латентная информация для справки. Игнорируйте любую латентную информацию, которая нерелевантна или ошибочна.\n\nПоместите окончательный ответ в \\boxed{{YOUR_FINAL_ANSWER}}.\n\nОтвечайте полностью на русском языке."
+    },
+    "hierarchical_latent": {
+      "planner": "Вы математический агент. Рассуждайте шаг за шагом, чтобы решить входной вопрос.\n\nВходной вопрос: {question}\n\nПоместите окончательный ответ в \\boxed{{YOUR_FINAL_ANSWER}}.\n\nОтвечайте полностью на русском языке.",
+      "critic": "Вы научный агент. Рассуждайте шаг за шагом, чтобы решить входной вопрос.\n\nВходной вопрос: {question}\n\nПоместите окончательный ответ в \\boxed{{YOUR_FINAL_ANSWER}}.\n\nОтвечайте полностью на русском языке.",
+      "refiner": "Вы агент кода. Рассуждайте шаг за шагом, чтобы решить входной вопрос.\n\nВходной вопрос: {question}\n\nПоместите окончательный ответ в \\boxed{{YOUR_FINAL_ANSWER}}.\n\nОтвечайте полностью на русском языке.",
+      "judger_default": "Вы суммаризатор задачи. Используйте входной вопрос и предыдущих агентов только как справку. Игнорируйте всё нерелевантное или ошибочное.\n\nВходной вопрос: {question}\n\nПоместите окончательный ответ в \\boxed{{YOUR_FINAL_ANSWER}}.\n\nОтвечайте полностью на русском языке."
+    },
+    "text_mas_sequential": {
+      "planner": "Вы агент планирования. Для входного вопроса составьте ясный пошаговый план решения. План должен быть кратким, не давайте окончательный ответ.\n\nВходной вопрос:\n{question}\n\nОтвечайте полностью на русском языке.",
+      "critic": "Вы агент-критик. Оцените корректность предоставленного латентного плана для вопроса и дайте полезную обратную связь для улучшения.\n\nВходной вопрос:\n{question}\n\nСправка от предыдущих агентов:\n{context}\n\nОтвечайте полностью на русском языке.",
+      "refiner": "Вы агент уточнения. Используйте предыдущий латентный план и обратную связь, чтобы создать улучшенный, корректный и краткий план. Не давайте окончательный ответ.\n\nВходной вопрос:\n{question}\n\nСправка от предыдущих агентов:\n{context}\n\nОтвечайте полностью на русском языке.",
+      "judger": "Целевой вопрос: {question}\n\nВы финальный решатель в последовательной многоагентной системе. Используйте уточненный план только как справку. Игнорируйте всё нерелевантное или ошибочное.\n\nСправка от предыдущих агентов:\n{context}\n\nПоместите окончательный ответ в \\boxed{{YOUR_FINAL_ANSWER}}.\n\nОтвечайте полностью на русском языке."
+    },
+    "text_mas_hierarchical": {
+      "planner": "Вы математический агент. Рассуждайте шаг за шагом, чтобы решить входной вопрос.\n\nВходной вопрос: {question}\n\nПоместите окончательный ответ в \\boxed{{YOUR_FINAL_ANSWER}}.\n\nОтвечайте полностью на русском языке.",
+      "critic": "Вы научный агент. Рассуждайте шаг за шагом, чтобы решить входной вопрос.\n\nВходной вопрос: {question}\n\nПоместите окончательный ответ в \\boxed{{YOUR_FINAL_ANSWER}}.\n\nОтвечайте полностью на русском языке.",
+      "refiner": "Вы агент кода. Рассуждайте шаг за шагом, чтобы решить входной вопрос.\n\nВходной вопрос: {question}\n\nПоместите окончательный ответ в \\boxed{{YOUR_FINAL_ANSWER}}.\n\nОтвечайте полностью на русском языке.",
+      "judger": "Вы суммаризатор задачи. Используйте входной вопрос и предыдущих агентов только как справку. Игнорируйте всё нерелевантное или ошибочное.\n\nСправка от предыдущих агентов:\n{context}\n\nВходной вопрос: {question}\n\nПоместите окончательный ответ в \\boxed{{YOUR_FINAL_ANSWER}}.\n\nОтвечайте полностью на русском языке."
     }
-}
-  ,
+  },
   "sw": {
     "system_message": "Wewe ni Qwen, umeundwa na Alibaba Cloud. Wewe ni msaidizi anayesaidia.",
     "single_agent": {
-      "default": "Swali la Lengo: {question}\n\nWewe ni msaidizi anayesaidia.\n\nLazima ufikirie hatua kwa hatua ili kutatua **Swali la Lengo lililowekwa** bila kutoa taarifa zisizohusiana.\n\nSasa, fikiria hatua kwa hatua na toa jibu la mwisho ndani ya boksi: \\\boxed{{YOUR_FINAL_ANSWER}}."
+      "default": "Swali lengwa: {question}\n\nWewe ni msaidizi anayesaidia. Fikiri hatua kwa hatua ili kutatua swali lengwa. Usitoe taarifa zisizohusiana.\n\nWeka jibu la mwisho ndani ya \\boxed{{YOUR_FINAL_ANSWER}}.\n\nJibu kabisa kwa Kiswahili."
     },
     "sequential_latent": {
-      "planner": "Wewe ni Wakala wa Mpango. Kwa swali ulilopewa, tengeneza mpango wazi wa hatua kwa hatua wa jinsi ya kuutatua.\n\nSwali: {question}\n\nMpango wako uwe mfupi na uwe na pointi za kulia kwa kila hatua. Usitoe jibu la mwisho.\nSasa toa mpango wako hapa chini:",
-      "critic": "Swali: {question}\n\nWewe ni Wakala Mkosoaji. Thibitisha ufasaha wa mpango uliotolewa na toa maoni ya kuboresha.\nTaarifa ya mpango iko katika fomu ya latent KV. Angalia mpango na swali na toa:\n(1) mpango wa awali\n(2) maoni ya kujenga kwa mpango.\n\nFomu:\nOriginal Plan: [Nakili mpango hapa]\nFeedback: [Maoni yako hapa]\n\nSasa toa jibu:",
-      "refiner": "Swali: {question}\n\nWewe ni Wakala wa Uboreshaji. Tengeneza mpango ulioboreshwa kwa kuzingatia mpango na maoni ya awali.\n\nToa mpango ulioboreshwa:",
-      "judger_default": "Swali la Lengo: {question}\n\nWewe ni msaidizi anayesaidia. Taarifa za latent zimetolewa kwa kumbukumbu; ziache zisizohusiana.\n\nFikiria hatua kwa hatua na toa jibu la mwisho ndani ya boksi: \\\boxed{{YOUR_FINAL_ANSWER}}."
+      "planner": "Wewe ni Wakala wa Mpango. Kwa swali la kuingia, tengeneza mpango wazi wa hatua kwa hatua wa kulitatua. Mpango uwe mfupi na usitoe jibu la mwisho.\n\nSwali: {question}\n\nJibu kabisa kwa Kiswahili.",
+      "critic": "Swali: {question}\n\nWewe ni Wakala Mkosoaji. Tathmini usahihi wa mpango wa latent uliotolewa kwa swali na toa maoni yanayosaidia kuuboresha.\n\nJibu kabisa kwa Kiswahili.",
+      "refiner": "Swali: {question}\n\nWewe ni Wakala wa Uboreshaji. Tumia mpango wa awali wa latent na maoni kutengeneza mpango bora, sahihi na mfupi. Usitoe jibu la mwisho.\n\nJibu kabisa kwa Kiswahili.",
+      "judger_default": "Swali lengwa: {question}\n\nWewe ni msaidizi anayesaidia. Fikiri hatua kwa hatua ili kutatua swali lengwa. Usitoe taarifa zisizohusiana.\n\nUmepewa taarifa za latent kama rejea. Puuza taarifa yoyote ya latent isiyohusiana au isiyo sahihi.\n\nWeka jibu la mwisho ndani ya \\boxed{{YOUR_FINAL_ANSWER}}.\n\nJibu kabisa kwa Kiswahili."
+    },
+    "hierarchical_latent": {
+      "planner": "Wewe ni wakala wa hisabati. Fikiri hatua kwa hatua ili kutatua swali la kuingia.\n\nSwali la kuingia: {question}\n\nWeka jibu la mwisho ndani ya \\boxed{{YOUR_FINAL_ANSWER}}.\n\nJibu kabisa kwa Kiswahili.",
+      "critic": "Wewe ni wakala wa sayansi. Fikiri hatua kwa hatua ili kutatua swali la kuingia.\n\nSwali la kuingia: {question}\n\nWeka jibu la mwisho ndani ya \\boxed{{YOUR_FINAL_ANSWER}}.\n\nJibu kabisa kwa Kiswahili.",
+      "refiner": "Wewe ni wakala wa msimbo. Fikiri hatua kwa hatua ili kutatua swali la kuingia.\n\nSwali la kuingia: {question}\n\nWeka jibu la mwisho ndani ya \\boxed{{YOUR_FINAL_ANSWER}}.\n\nJibu kabisa kwa Kiswahili.",
+      "judger_default": "Wewe ni mfupishaji wa kazi. Tumia swali la kuingia na mawakala waliotangulia kama rejea tu. Puuza chochote kisichohusiana au kisicho sahihi.\n\nSwali la kuingia: {question}\n\nWeka jibu la mwisho ndani ya \\boxed{{YOUR_FINAL_ANSWER}}.\n\nJibu kabisa kwa Kiswahili."
+    },
+    "text_mas_sequential": {
+      "planner": "Wewe ni Wakala wa Mpango. Kwa swali la kuingia, tengeneza mpango wazi wa hatua kwa hatua wa kulitatua. Mpango uwe mfupi na usitoe jibu la mwisho.\n\nSwali la kuingia:\n{question}\n\nJibu kabisa kwa Kiswahili.",
+      "critic": "Wewe ni Wakala Mkosoaji. Tathmini usahihi wa mpango wa latent uliotolewa kwa swali na toa maoni yanayosaidia kuuboresha.\n\nSwali la kuingia:\n{question}\n\nRejea kutoka kwa mawakala waliotangulia:\n{context}\n\nJibu kabisa kwa Kiswahili.",
+      "refiner": "Wewe ni Wakala wa Uboreshaji. Tumia mpango wa awali wa latent na maoni kutengeneza mpango bora, sahihi na mfupi. Usitoe jibu la mwisho.\n\nSwali la kuingia:\n{question}\n\nRejea kutoka kwa mawakala waliotangulia:\n{context}\n\nJibu kabisa kwa Kiswahili.",
+      "judger": "Swali lengwa: {question}\n\nWewe ni mtatuzi wa mwisho katika mfumo wa mawakala wengi wa mfululizo. Tumia mpango ulioboreshwa kama rejea tu. Puuza chochote kisichohusiana au kisicho sahihi.\n\nRejea kutoka kwa mawakala waliotangulia:\n{context}\n\nWeka jibu la mwisho ndani ya \\boxed{{YOUR_FINAL_ANSWER}}.\n\nJibu kabisa kwa Kiswahili."
+    },
+    "text_mas_hierarchical": {
+      "planner": "Wewe ni wakala wa hisabati. Fikiri hatua kwa hatua ili kutatua swali la kuingia.\n\nSwali la kuingia: {question}\n\nWeka jibu la mwisho ndani ya \\boxed{{YOUR_FINAL_ANSWER}}.\n\nJibu kabisa kwa Kiswahili.",
+      "critic": "Wewe ni wakala wa sayansi. Fikiri hatua kwa hatua ili kutatua swali la kuingia.\n\nSwali la kuingia: {question}\n\nWeka jibu la mwisho ndani ya \\boxed{{YOUR_FINAL_ANSWER}}.\n\nJibu kabisa kwa Kiswahili.",
+      "refiner": "Wewe ni wakala wa msimbo. Fikiri hatua kwa hatua ili kutatua swali la kuingia.\n\nSwali la kuingia: {question}\n\nWeka jibu la mwisho ndani ya \\boxed{{YOUR_FINAL_ANSWER}}.\n\nJibu kabisa kwa Kiswahili.",
+      "judger": "Wewe ni mfupishaji wa kazi. Tumia swali la kuingia na mawakala waliotangulia kama rejea tu. Puuza chochote kisichohusiana au kisicho sahihi.\n\nRejea kutoka kwa mawakala waliotangulia:\n{context}\n\nSwali la kuingia: {question}\n\nWeka jibu la mwisho ndani ya \\boxed{{YOUR_FINAL_ANSWER}}.\n\nJibu kabisa kwa Kiswahili."
     }
-}
-  ,
+  },
   "te": {
-    "system_message": "మీరు Qwen, Alibaba Cloud ద్వారా తయారుచేయబడింది. మీరు ఒక సహాయక సహాయకుడు.",
+    "system_message": "మీరు Alibaba Cloud రూపొందించిన Qwen. మీరు సహాయక అసిస్టెంట్.",
     "single_agent": {
-      "default": "లక్ష్య ప్రశ్న: {question}\n\nమీరు ఒక సహాయకుడు.\n\nమీకు ఇచ్చిన లక్ష్య ప్రశ్నని విడిగా దశలవారీగా చర్చించి పరిష్కరించాలి మరియు ఇతర అనవసర సమాచారాన్ని ఇవ్వరాదు.\n\nఇప్పుడు దశలవారీగా చర్చించి తుది సమాధానాన్ని బాక్స్‌లో ఉంచండి: \\\boxed{{YOUR_FINAL_ANSWER}}."
+      "default": "లక్ష్య ప్రశ్న: {question}\n\nమీరు సహాయక అసిస్టెంట్. లక్ష్య ప్రశ్నను పరిష్కరించడానికి దశలవారీగా ఆలోచించండి. సంబంధం లేని సమాచారాన్ని ఇవ్వవద్దు.\n\nచివరి సమాధానాన్ని \\boxed{{YOUR_FINAL_ANSWER}} లో పెట్టండి.\n\nపూర్తిగా తెలుగులో సమాధానం ఇవ్వండి."
     },
     "sequential_latent": {
-      "planner": "మీరు ప్లానర్ ఏజెంట్. ఇన్పుట్ ప్రశ్న ఇచ్చినప్పుడు, ప్రశ్నను ఎలా పరిష్కరించాలో స్పష్టమైన దశల వారీ ప్లాన్ రూపొందించండి.\n\nప్రశ్న: {question}\n\nమీ ప్లాన్ సంక్షిప్తంగా ఉండాలి మరియు ప్రతి దశకు కొన్ని బుల్లెట్ పాయింట్లు ఉండాలి. తుది సమాధానం ఇవ్వకండి.\nఇప్పటికే మీ ప్లాన్‌ను ఇక్కడ ఉత్పత్తి చేయండి:",
-      "critic": "ప్రశ్న: {question}\n\nమీరు క్రిటిక్ ఏజెంట్. ఇవ్వబడిన ప్లాన్ సరిగా ఉందా అన్నది తనిఖీ చేసి, మెరుగుదల కోసం సహాయక అభిప్రాయాన్ని ఇవ్వండి.\n\nఫార్మాట్:\nOriginal Plan: [Planner యే ఏజెంట్ ప్లాన్‌ను ఇక్కడ నకలుచేసుకోండి]\nFeedback: [మెరుగుదల కోసం వివరమైన అభిప్రాయాలు]\n\nఇప్పుడే మీ ప్రతిస్పందనను అందించండి:",
-      "refiner": "ప్రశ్న: {question}\n\nమీరు రిఫైనర్ ఏజెంట్. గత ప్లాన్ మరియు అభిప్రాయాల ఆధారంగా మెరుగైన ప్లాన్ తయారు చేయండి.\n\nరిఫైన్డ్ ప్లాన్‌ను అందించండి:",
-      "judger_default": "లక్ష్య ప్రశ్న: {question}\n\nమీకు రిజర్వ్‌గా లాటెంట్ సమాచారం అందించింది; అవసరంలేని భాగాలను అధిగమించండి.\n\nదశలవారీగా చర్చించి తుది సమాధానాన్ని బాక్స్‌లో ఉంచండి: \\\boxed{{YOUR_FINAL_ANSWER}}."
+      "planner": "మీరు ప్లానర్ ఏజెంట్. ఇన్పుట్ ప్రశ్నను పరిష్కరించడానికి స్పష్టమైన దశలవారీ ప్రణాళికను రూపొందించండి. ప్రణాళికను సంక్షిప్తంగా ఉంచండి మరియు చివరి సమాధానం ఇవ్వవద్దు.\n\nప్రశ్న: {question}\n\nపూర్తిగా తెలుగులో సమాధానం ఇవ్వండి.",
+      "critic": "ప్రశ్న: {question}\n\nమీరు క్రిటిక్ ఏజెంట్. ప్రశ్న కోసం ఇవ్వబడిన లాటెంట్ ప్రణాళిక సరిగా ఉందో లేదో అంచనా వేసి, మెరుగుపరచడానికి ఉపయోగకరమైన అభిప్రాయం ఇవ్వండి.\n\nపూర్తిగా తెలుగులో సమాధానం ఇవ్వండి.",
+      "refiner": "ప్రశ్న: {question}\n\nమీరు రిఫైనర్ ఏజెంట్. ముందు లాటెంట్ ప్రణాళిక మరియు అభిప్రాయాన్ని ఉపయోగించి మెరుగైన, సరైన, సంక్షిప్త ప్రణాళికను తయారు చేయండి. చివరి సమాధానం ఇవ్వవద్దు.\n\nపూర్తిగా తెలుగులో సమాధానం ఇవ్వండి.",
+      "judger_default": "లక్ష్య ప్రశ్న: {question}\n\nమీరు సహాయక అసిస్టెంట్. లక్ష్య ప్రశ్నను పరిష్కరించడానికి దశలవారీగా ఆలోచించండి. సంబంధం లేని సమాచారాన్ని ఇవ్వవద్దు.\n\nమీకు సూచన కోసం లాటెంట్ సమాచారం ఇవ్వబడింది. సంబంధం లేని లేదా తప్పు లాటెంట్ సమాచారాన్ని విస్మరించండి.\n\nచివరి సమాధానాన్ని \\boxed{{YOUR_FINAL_ANSWER}} లో పెట్టండి.\n\nపూర్తిగా తెలుగులో సమాధానం ఇవ్వండి."
+    },
+    "hierarchical_latent": {
+      "planner": "మీరు గణిత ఏజెంట్. ఇన్పుట్ ప్రశ్నను పరిష్కరించడానికి దశలవారీగా ఆలోచించండి.\n\nఇన్పుట్ ప్రశ్న: {question}\n\nచివరి సమాధానాన్ని \\boxed{{YOUR_FINAL_ANSWER}} లో పెట్టండి.\n\nపూర్తిగా తెలుగులో సమాధానం ఇవ్వండి.",
+      "critic": "మీరు సైన్స్ ఏజెంట్. ఇన్పుట్ ప్రశ్నను పరిష్కరించడానికి దశలవారీగా ఆలోచించండి.\n\nఇన్పుట్ ప్రశ్న: {question}\n\nచివరి సమాధానాన్ని \\boxed{{YOUR_FINAL_ANSWER}} లో పెట్టండి.\n\nపూర్తిగా తెలుగులో సమాధానం ఇవ్వండి.",
+      "refiner": "మీరు కోడ్ ఏజెంట్. ఇన్పుట్ ప్రశ్నను పరిష్కరించడానికి దశలవారీగా ఆలోచించండి.\n\nఇన్పుట్ ప్రశ్న: {question}\n\nచివరి సమాధానాన్ని \\boxed{{YOUR_FINAL_ANSWER}} లో పెట్టండి.\n\nపూర్తిగా తెలుగులో సమాధానం ఇవ్వండి.",
+      "judger_default": "మీరు టాస్క్ సమ్మరైజర్. ఇన్పుట్ ప్రశ్న మరియు ముందు ఏజెంట్లను కేవలం సూచనగా మాత్రమే ఉపయోగించండి. సంబంధం లేని లేదా తప్పు విషయాలను విస్మరించండి.\n\nఇన్పుట్ ప్రశ్న: {question}\n\nచివరి సమాధానాన్ని \\boxed{{YOUR_FINAL_ANSWER}} లో పెట్టండి.\n\nపూర్తిగా తెలుగులో సమాధానం ఇవ్వండి."
+    },
+    "text_mas_sequential": {
+      "planner": "మీరు ప్లానర్ ఏజెంట్. ఇన్పుట్ ప్రశ్నను పరిష్కరించడానికి స్పష్టమైన దశలవారీ ప్రణాళికను రూపొందించండి. ప్రణాళికను సంక్షిప్తంగా ఉంచండి మరియు చివరి సమాధానం ఇవ్వవద్దు.\n\nఇన్పుట్ ప్రశ్న:\n{question}\n\nపూర్తిగా తెలుగులో సమాధానం ఇవ్వండి.",
+      "critic": "మీరు క్రిటిక్ ఏజెంట్. ప్రశ్న కోసం ఇవ్వబడిన లాటెంట్ ప్రణాళిక సరిగా ఉందో లేదో అంచనా వేసి, మెరుగుపరచడానికి ఉపయోగకరమైన అభిప్రాయం ఇవ్వండి.\n\nఇన్పుట్ ప్రశ్న:\n{question}\n\nముందు ఏజెంట్ల నుండి సూచన:\n{context}\n\nపూర్తిగా తెలుగులో సమాధానం ఇవ్వండి.",
+      "refiner": "మీరు రిఫైనర్ ఏజెంట్. ముందు లాటెంట్ ప్రణాళిక మరియు అభిప్రాయాన్ని ఉపయోగించి మెరుగైన, సరైన, సంక్షిప్త ప్రణాళికను తయారు చేయండి. చివరి సమాధానం ఇవ్వవద్దు.\n\nఇన్పుట్ ప్రశ్న:\n{question}\n\nముందు ఏజెంట్ల నుండి సూచన:\n{context}\n\nపూర్తిగా తెలుగులో సమాధానం ఇవ్వండి.",
+      "judger": "లక్ష్య ప్రశ్న: {question}\n\nమీరు సీక్వెన్షియల్ మల్టీ-ఏజెంట్ సిస్టమ్‌లో చివరి పరిష్కారకుడు. మెరుగుపరిచిన ప్రణాళికను కేవలం సూచనగా మాత్రమే ఉపయోగించండి. సంబంధం లేని లేదా తప్పు విషయాలను విస్మరించండి.\n\nముందు ఏజెంట్ల నుండి సూచన:\n{context}\n\nచివరి సమాధానాన్ని \\boxed{{YOUR_FINAL_ANSWER}} లో పెట్టండి.\n\nపూర్తిగా తెలుగులో సమాధానం ఇవ్వండి."
+    },
+    "text_mas_hierarchical": {
+      "planner": "మీరు గణిత ఏజెంట్. ఇన్పుట్ ప్రశ్నను పరిష్కరించడానికి దశలవారీగా ఆలోచించండి.\n\nఇన్పుట్ ప్రశ్న: {question}\n\nచివరి సమాధానాన్ని \\boxed{{YOUR_FINAL_ANSWER}} లో పెట్టండి.\n\nపూర్తిగా తెలుగులో సమాధానం ఇవ్వండి.",
+      "critic": "మీరు సైన్స్ ఏజెంట్. ఇన్పుట్ ప్రశ్నను పరిష్కరించడానికి దశలవారీగా ఆలోచించండి.\n\nఇన్పుట్ ప్రశ్న: {question}\n\nచివరి సమాధానాన్ని \\boxed{{YOUR_FINAL_ANSWER}} లో పెట్టండి.\n\nపూర్తిగా తెలుగులో సమాధానం ఇవ్వండి.",
+      "refiner": "మీరు కోడ్ ఏజెంట్. ఇన్పుట్ ప్రశ్నను పరిష్కరించడానికి దశలవారీగా ఆలోచించండి.\n\nఇన్పుట్ ప్రశ్న: {question}\n\nచివరి సమాధానాన్ని \\boxed{{YOUR_FINAL_ANSWER}} లో పెట్టండి.\n\nపూర్తిగా తెలుగులో సమాధానం ఇవ్వండి.",
+      "judger": "మీరు టాస్క్ సమ్మరైజర్. ఇన్పుట్ ప్రశ్న మరియు ముందు ఏజెంట్లను కేవలం సూచనగా మాత్రమే ఉపయోగించండి. సంబంధం లేని లేదా తప్పు విషయాలను విస్మరించండి.\n\nముందు ఏజెంట్ల నుండి సూచన:\n{context}\n\nఇన్పుట్ ప్రశ్న: {question}\n\nచివరి సమాధానాన్ని \\boxed{{YOUR_FINAL_ANSWER}} లో పెట్టండి.\n\nపూర్తిగా తెలుగులో సమాధానం ఇవ్వండి."
     }
-}
-  ,
+  },
   "th": {
     "system_message": "คุณคือ Qwen สร้างโดย Alibaba Cloud คุณเป็นผู้ช่วยที่เป็นประโยชน์",
     "single_agent": {
-      "default": "คำถามเป้าหมาย: {question}\n\nคุณเป็นผู้ช่วยที่เป็นประโยชน์\n\nคุณต้องให้เหตุผลทีละขั้นตอนเพื่อแก้ปัญหา **คำถามเป้าหมายที่ให้มา** โดยไม่ใส่ข้อมูลที่ไม่เกี่ยวข้องอื่นๆ\n\nตอนนี้ ให้เหตุผลทีละขั้นตอนและแสดงคำตอบสุดท้ายในกล่อง: \\\boxed{{YOUR_FINAL_ANSWER}}."
+      "default": "คำถามเป้าหมาย: {question}\n\nคุณเป็นผู้ช่วยที่เป็นประโยชน์ ให้เหตุผลทีละขั้นตอนเพื่อแก้คำถามเป้าหมาย อย่าใส่ข้อมูลที่ไม่เกี่ยวข้อง\n\nใส่คำตอบสุดท้ายไว้ใน \\boxed{{YOUR_FINAL_ANSWER}}\n\nตอบเป็นภาษาไทยทั้งหมด"
     },
     "sequential_latent": {
-      "planner": "คุณคือตัวแทนวางแผน ให้แนวทางทีละขั้นตอนที่ชัดเจนสำหรับการแก้คำถามที่ได้รับ\n\nคำถาม: {question}\n\nแผนของคุณควรกระชับและมีหัวข้อย่อยสำหรับแต่ละขั้นตอน อย่าให้คำตอบสุดท้าย\nตอนนี้แสดงแผนของคุณด้านล่าง:",
-      "critic": "คำถาม: {question}\n\nคุณคือตัวแทนผู้วิจารณ์ ประเมินความถูกต้องของแผนที่ให้มาและให้ความคิดเห็นที่เป็นประโยชน์\nข้อมูลแผนถูกจัดอยู่ในรูปแบบ latent KV ตรวจสอบแผนและคำถาม แล้วให้:\n(1) เนื้อหาแผนต้นฉบับ\n(2) ข้อเสนอแนะเชิงสร้างสรรค์\n\nรูปแบบ:\nOriginal Plan: [คัดลอกแผนของ Planner ที่นี่]\nFeedback: [ความคิดเห็นของคุณ]\n\nตอนนี้แสดงคำตอบของคุณ:",
-      "refiner": "คำถาม: {question}\n\nคุณคือตัวแทนปรับปรุง สร้างแผนที่ได้รับการปรับปรุงโดยอิงจากแผนและข้อเสนอแนะก่อนหน้า\n\nตอนนี้แสดงแผนที่ได้รับการปรับปรุง:",
-      "judger_default": "คำถามเป้าหมาย: {question}\n\nคุณเป็นผู้ช่วยที่เป็นประโยชน์ ข้อมูล latent ถูกให้เป็นข้อมูลอ้างอิง ให้ละเว้นสิ่งที่ไม่เกี่ยวข้อง\n\nให้เหตุผลทีละขั้นตอนและแสดงคำตอบสุดท้ายในกล่อง: \\\boxed{{YOUR_FINAL_ANSWER}}."
+      "planner": "คุณคือตัวแทนวางแผน สำหรับคำถามอินพุต จงออกแบบแผนการแก้ปัญหาแบบทีละขั้นตอนที่ชัดเจน ทำให้แผนกระชับและอย่าให้คำตอบสุดท้าย\n\nคำถาม: {question}\n\nตอบเป็นภาษาไทยทั้งหมด",
+      "critic": "คำถาม: {question}\n\nคุณคือตัวแทนวิจารณ์ ประเมินความถูกต้องของแผน latent ที่ให้มาสำหรับคำถาม และให้ข้อเสนอแนะที่เป็นประโยชน์เพื่อปรับปรุง\n\nตอบเป็นภาษาไทยทั้งหมด",
+      "refiner": "คำถาม: {question}\n\nคุณคือตัวแทนปรับปรุง ใช้แผน latent ก่อนหน้าและข้อเสนอแนะเพื่อสร้างแผนที่ดีขึ้น ถูกต้อง และกระชับ อย่าให้คำตอบสุดท้าย\n\nตอบเป็นภาษาไทยทั้งหมด",
+      "judger_default": "คำถามเป้าหมาย: {question}\n\nคุณเป็นผู้ช่วยที่เป็นประโยชน์ ให้เหตุผลทีละขั้นตอนเพื่อแก้คำถามเป้าหมาย อย่าใส่ข้อมูลที่ไม่เกี่ยวข้อง\n\nคุณได้รับข้อมูล latent เป็นข้อมูลอ้างอิง ให้ละเว้นข้อมูล latent ที่ไม่เกี่ยวข้องหรือไม่ถูกต้อง\n\nใส่คำตอบสุดท้ายไว้ใน \\boxed{{YOUR_FINAL_ANSWER}}\n\nตอบเป็นภาษาไทยทั้งหมด"
+    },
+    "hierarchical_latent": {
+      "planner": "คุณคือตัวแทนคณิตศาสตร์ ให้เหตุผลทีละขั้นตอนเพื่อแก้คำถามอินพุต\n\nคำถามอินพุต: {question}\n\nใส่คำตอบสุดท้ายไว้ใน \\boxed{{YOUR_FINAL_ANSWER}}\n\nตอบเป็นภาษาไทยทั้งหมด",
+      "critic": "คุณคือตัวแทนวิทยาศาสตร์ ให้เหตุผลทีละขั้นตอนเพื่อแก้คำถามอินพุต\n\nคำถามอินพุต: {question}\n\nใส่คำตอบสุดท้ายไว้ใน \\boxed{{YOUR_FINAL_ANSWER}}\n\nตอบเป็นภาษาไทยทั้งหมด",
+      "refiner": "คุณคือตัวแทนโค้ด ให้เหตุผลทีละขั้นตอนเพื่อแก้คำถามอินพุต\n\nคำถามอินพุต: {question}\n\nใส่คำตอบสุดท้ายไว้ใน \\boxed{{YOUR_FINAL_ANSWER}}\n\nตอบเป็นภาษาไทยทั้งหมด",
+      "judger_default": "คุณคือผู้สรุปงาน ใช้คำถามอินพุตและตัวแทนก่อนหน้าเป็นเพียงข้อมูลอ้างอิง ละเว้นสิ่งที่ไม่เกี่ยวข้องหรือไม่ถูกต้อง\n\nคำถามอินพุต: {question}\n\nใส่คำตอบสุดท้ายไว้ใน \\boxed{{YOUR_FINAL_ANSWER}}\n\nตอบเป็นภาษาไทยทั้งหมด"
+    },
+    "text_mas_sequential": {
+      "planner": "คุณคือตัวแทนวางแผน สำหรับคำถามอินพุต จงออกแบบแผนการแก้ปัญหาแบบทีละขั้นตอนที่ชัดเจน ทำให้แผนกระชับและอย่าให้คำตอบสุดท้าย\n\nคำถามอินพุต:\n{question}\n\nตอบเป็นภาษาไทยทั้งหมด",
+      "critic": "คุณคือตัวแทนวิจารณ์ ประเมินความถูกต้องของแผน latent ที่ให้มาสำหรับคำถาม และให้ข้อเสนอแนะที่เป็นประโยชน์เพื่อปรับปรุง\n\nคำถามอินพุต:\n{question}\n\nข้อมูลอ้างอิงจากตัวแทนก่อนหน้า:\n{context}\n\nตอบเป็นภาษาไทยทั้งหมด",
+      "refiner": "คุณคือตัวแทนปรับปรุง ใช้แผน latent ก่อนหน้าและข้อเสนอแนะเพื่อสร้างแผนที่ดีขึ้น ถูกต้อง และกระชับ อย่าให้คำตอบสุดท้าย\n\nคำถามอินพุต:\n{question}\n\nข้อมูลอ้างอิงจากตัวแทนก่อนหน้า:\n{context}\n\nตอบเป็นภาษาไทยทั้งหมด",
+      "judger": "คำถามเป้าหมาย: {question}\n\nคุณคือผู้แก้ปัญหาสุดท้ายในระบบหลายตัวแทนแบบลำดับ ใช้แผนที่ปรับปรุงแล้วเป็นเพียงข้อมูลอ้างอิง ละเว้นสิ่งที่ไม่เกี่ยวข้องหรือไม่ถูกต้อง\n\nข้อมูลอ้างอิงจากตัวแทนก่อนหน้า:\n{context}\n\nใส่คำตอบสุดท้ายไว้ใน \\boxed{{YOUR_FINAL_ANSWER}}\n\nตอบเป็นภาษาไทยทั้งหมด"
+    },
+    "text_mas_hierarchical": {
+      "planner": "คุณคือตัวแทนคณิตศาสตร์ ให้เหตุผลทีละขั้นตอนเพื่อแก้คำถามอินพุต\n\nคำถามอินพุต: {question}\n\nใส่คำตอบสุดท้ายไว้ใน \\boxed{{YOUR_FINAL_ANSWER}}\n\nตอบเป็นภาษาไทยทั้งหมด",
+      "critic": "คุณคือตัวแทนวิทยาศาสตร์ ให้เหตุผลทีละขั้นตอนเพื่อแก้คำถามอินพุต\n\nคำถามอินพุต: {question}\n\nใส่คำตอบสุดท้ายไว้ใน \\boxed{{YOUR_FINAL_ANSWER}}\n\nตอบเป็นภาษาไทยทั้งหมด",
+      "refiner": "คุณคือตัวแทนโค้ด ให้เหตุผลทีละขั้นตอนเพื่อแก้คำถามอินพุต\n\nคำถามอินพุต: {question}\n\nใส่คำตอบสุดท้ายไว้ใน \\boxed{{YOUR_FINAL_ANSWER}}\n\nตอบเป็นภาษาไทยทั้งหมด",
+      "judger": "คุณคือผู้สรุปงาน ใช้คำถามอินพุตและตัวแทนก่อนหน้าเป็นเพียงข้อมูลอ้างอิง ละเว้นสิ่งที่ไม่เกี่ยวข้องหรือไม่ถูกต้อง\n\nข้อมูลอ้างอิงจากตัวแทนก่อนหน้า:\n{context}\n\nคำถามอินพุต: {question}\n\nใส่คำตอบสุดท้ายไว้ใน \\boxed{{YOUR_FINAL_ANSWER}}\n\nตอบเป็นภาษาไทยทั้งหมด"
     }
-}
-  ,
+  },
   "zh": {
     "system_message": "你是 Qwen，由阿里云创建。你是一个乐于助人的助手。",
     "single_agent": {
-      "default": "目标问题：{question}\n\n你是一个乐于助人的助手。\n\n你必须逐步推理以解决所提供的目标问题，不要输出其他无关信息。\n\n现在逐步推理并将最终答案放在下框中： \\\boxed{{YOUR_FINAL_ANSWER}}。"
+      "default": "目标问题: {question}\n\n你是一个乐于助人的助手。请逐步推理来解决目标问题。不要输出无关信息。\n\n请把最终答案放在 \\boxed{{YOUR_FINAL_ANSWER}} 中。\n\n请完全用中文回答。"
     },
     "sequential_latent": {
-      "planner": "你是规划者代理。针对输入问题，设计一个清晰的逐步解决方案。\n\n问题：{question}\n\n你的计划应简明扼要，每步包含若干要点。不要直接给出最终答案。\n现在在下面输出你的计划：",
-      "critic": "问题：{question}\n\n你是批判者代理，请评估输入计划的正确性并提供有助于改进的反馈。\n计划信息以潜在 KV 表示提供。请审阅计划与问题并输出：\n(1) 原始计划内容\n(2) 对原始计划的建设性反馈。\n\n格式：\nOriginal Plan: [将规划者的计划复制到此处]\nFeedback: [在此处填写改进建议]\n\n现在输出你的回复：",
-      "refiner": "问题：{question}\n\n你是改进者代理。基于之前的计划与反馈，提供一个改进且更详细的逐步计划。\n\n现在输出改进后的计划：",
-      "judger_default": "目标问题：{question}\n\n你是一个乐于助人的助手。你会获得潜在信息作为参考；如果不相关请忽略。\n\n请逐步推理并在下框中输出最终答案： \\\boxed{{YOUR_FINAL_ANSWER}}。"
+      "planner": "你是规划者代理。给定输入问题，请设计一个清晰的逐步解题计划。计划要简洁，不要给出最终答案。\n\n问题: {question}\n\n请完全用中文回答。",
+      "critic": "问题: {question}\n\n你是批判者代理。请评估该问题所提供的潜在计划是否正确，并给出有助于改进的反馈。\n\n请完全用中文回答。",
+      "refiner": "问题: {question}\n\n你是改进者代理。请使用先前的潜在计划和反馈，生成一个改进后、正确且简洁的计划。不要给出最终答案。\n\n请完全用中文回答。",
+      "judger_default": "目标问题: {question}\n\n你是一个乐于助人的助手。请逐步推理来解决目标问题。不要输出无关信息。\n\n你会获得作为参考的潜在信息。请忽略任何无关或错误的潜在信息。\n\n请把最终答案放在 \\boxed{{YOUR_FINAL_ANSWER}} 中。\n\n请完全用中文回答。"
+    },
+    "hierarchical_latent": {
+      "planner": "你是数学代理。请逐步推理来解决输入问题。\n\n输入问题: {question}\n\n请把最终答案放在 \\boxed{{YOUR_FINAL_ANSWER}} 中。\n\n请完全用中文回答。",
+      "critic": "你是科学代理。请逐步推理来解决输入问题。\n\n输入问题: {question}\n\n请把最终答案放在 \\boxed{{YOUR_FINAL_ANSWER}} 中。\n\n请完全用中文回答。",
+      "refiner": "你是代码代理。请逐步推理来解决输入问题。\n\n输入问题: {question}\n\n请把最终答案放在 \\boxed{{YOUR_FINAL_ANSWER}} 中。\n\n请完全用中文回答。",
+      "judger_default": "你是任务总结者。输入问题和先前代理只能作为参考。请忽略任何无关或错误内容。\n\n输入问题: {question}\n\n请把最终答案放在 \\boxed{{YOUR_FINAL_ANSWER}} 中。\n\n请完全用中文回答。"
+    },
+    "text_mas_sequential": {
+      "planner": "你是规划者代理。给定输入问题，请设计一个清晰的逐步解题计划。计划要简洁，不要给出最终答案。\n\n输入问题:\n{question}\n\n请完全用中文回答。",
+      "critic": "你是批判者代理。请评估该问题所提供的潜在计划是否正确，并给出有助于改进的反馈。\n\n输入问题:\n{question}\n\n来自先前代理的参考信息:\n{context}\n\n请完全用中文回答。",
+      "refiner": "你是改进者代理。请使用先前的潜在计划和反馈，生成一个改进后、正确且简洁的计划。不要给出最终答案。\n\n输入问题:\n{question}\n\n来自先前代理的参考信息:\n{context}\n\n请完全用中文回答。",
+      "judger": "目标问题: {question}\n\n你是顺序多代理系统中的最终解题者。改进后的计划只能作为参考。请忽略任何无关或错误内容。\n\n来自先前代理的参考信息:\n{context}\n\n请把最终答案放在 \\boxed{{YOUR_FINAL_ANSWER}} 中。\n\n请完全用中文回答。"
+    },
+    "text_mas_hierarchical": {
+      "planner": "你是数学代理。请逐步推理来解决输入问题。\n\n输入问题: {question}\n\n请把最终答案放在 \\boxed{{YOUR_FINAL_ANSWER}} 中。\n\n请完全用中文回答。",
+      "critic": "你是科学代理。请逐步推理来解决输入问题。\n\n输入问题: {question}\n\n请把最终答案放在 \\boxed{{YOUR_FINAL_ANSWER}} 中。\n\n请完全用中文回答。",
+      "refiner": "你是代码代理。请逐步推理来解决输入问题。\n\n输入问题: {question}\n\n请把最终答案放在 \\boxed{{YOUR_FINAL_ANSWER}} 中。\n\n请完全用中文回答。",
+      "judger": "你是任务总结者。输入问题和先前代理只能作为参考。请忽略任何无关或错误内容。\n\n来自先前代理的参考信息:\n{context}\n\n输入问题: {question}\n\n请把最终答案放在 \\boxed{{YOUR_FINAL_ANSWER}} 中。\n\n请完全用中文回答。"
     }
   }
 }
-
-
-

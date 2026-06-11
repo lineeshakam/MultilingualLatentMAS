@@ -13,10 +13,32 @@ except Exception:
     _TRANSLATIONS = {}
 
 
+_LANGUAGE_DIRECTIVES = {
+    "en": "Respond entirely in English.",
+    "bn": "সম্পূর্ণভাবে বাংলায় উত্তর দিন।",
+    "de": "Antworten Sie vollständig auf Deutsch.",
+    "es": "Responde completamente en español.",
+    "fr": "Répondez entièrement en français.",
+    "ja": "回答はすべて日本語で書いてください。",
+    "ru": "Отвечайте полностью на русском языке.",
+    "sw": "Jibu kabisa kwa Kiswahili.",
+    "te": "పూర్తిగా తెలుగులో సమాధానం ఇవ్వండి.",
+    "th": "ตอบเป็นภาษาไทยทั้งหมด",
+    "zh": "请完全用中文回答。",
+}
+
+
 def _get_lang_from_args(args):
     if not args:
         return "en"
     return getattr(args, "mgsm_lang", None) or getattr(args, "lang", None) or "en"
+
+
+def _with_language_directive(content: str, lang: str) -> str:
+    directive = _LANGUAGE_DIRECTIVES.get(lang)
+    if not directive or directive in content:
+        return content
+    return f"{content.rstrip()}\n\n{directive}"
 
 
 def _fetch_translation(section: str, role: str, task: str, lang: str):
@@ -50,7 +72,7 @@ def build_agent_message_sequential_latent_mas(role: str, question: str, context:
     # If a full translation template exists, use it
     tr = _fetch_translation("sequential_latent", role, getattr(args, "task", ""), lang)
     if tr is not None:
-        user_prompt = tr.format(question=question, context=context)
+        user_prompt = _with_language_directive(tr.format(question=question, context=context), lang)
         return [
             {"role": "system", "content": system_message},
             {"role": "user", "content": user_prompt},
@@ -164,7 +186,7 @@ Now, reason step by step and output the final answer inside \\boxed{{YOUR_FINAL_
         
     return [
         {"role": "system", "content": system_message},
-        {"role": "user", "content": user_prompt},
+        {"role": "user", "content": _with_language_directive(user_prompt, lang)},
     ]
 
 
@@ -175,7 +197,7 @@ def build_agent_message_hierarchical_latent_mas(role: str, question: str, contex
 
     tr = _fetch_translation("hierarchical_latent", role, getattr(args, "task", ""), lang)
     if tr is not None:
-        user_content = tr.format(question=question, context=context)
+        user_content = _with_language_directive(tr.format(question=question, context=context), lang)
         return [
             {"role": "system", "content": system_message},
             {"role": "user", "content": user_content},
@@ -396,7 +418,7 @@ Your response:
 
     return [
         {"role": "system", "content": system_message},
-        {"role": "user", "content": user_content},
+        {"role": "user", "content": _with_language_directive(user_content, lang)},
     ]
 
 
@@ -412,7 +434,7 @@ def build_agent_messages_sequential_text_mas(role: str, question: str, context: 
 
     tr = _fetch_translation("text_mas_sequential", role, getattr(args, "task", ""), lang)
     if tr is not None:
-        user_content = tr.format(question=question, context=context)
+        user_content = _with_language_directive(tr.format(question=question, context=context), lang)
         return [
             {"role": "system", "content": system_message},
             {"role": "user", "content": user_content},
@@ -577,7 +599,7 @@ Now, reason step by step and present your final answer clearly at the end.
 
     return [
         {"role": "system", "content": system_message},
-        {"role": "user", "content": user_content},
+        {"role": "user", "content": _with_language_directive(user_content, lang)},
     ]
 
 
@@ -593,13 +615,13 @@ def build_agent_messages_hierarchical_text_mas(role: str, question: str, context
 
     tr = _fetch_translation("text_mas_hierarchical", role, getattr(args, "task", ""), lang)
     if tr is not None:
-        user_content = tr.format(question=question, context=context)
+        user_content = _with_language_directive(tr.format(question=question, context=context), lang)
         return [
             {"role": "system", "content": system_message},
             {"role": "user", "content": user_content},
         ]
 
-    if args.task in ['gsm8k', 'aime2024', 'aime2025']:
+    if args.task in ['gsm8k', 'mgsm', 'aime2024', 'aime2025']:
         if role == "planner":
             user_content = f"""
 You are a math agent. Given the final answer inside \\boxed{{YOUR_FINAL_ANSWER}}.
@@ -771,7 +793,7 @@ Your response:
 
     return [
         {"role": "system", "content": system_message},
-        {"role": "user", "content": user_content},
+        {"role": "user", "content": _with_language_directive(user_content, lang)},
     ]
 
 
@@ -787,7 +809,7 @@ def build_agent_messages_single_agent(question: str, args=None):
 
     tr = _fetch_translation("single_agent", "default", getattr(args, "task", ""), lang)
     if tr is not None:
-        user_content = tr.format(question=question)
+        user_content = _with_language_directive(tr.format(question=question), lang)
         return [
             {"role": "system", "content": system_message},
             {"role": "user", "content": user_content},
@@ -856,6 +878,5 @@ Present your reasoning, and then clearly state your final answer at the end.
 
     return [
         {"role": "system", "content": system_message},
-        {"role": "user", "content": user_content},
+        {"role": "user", "content": _with_language_directive(user_content, lang)},
     ]
-
