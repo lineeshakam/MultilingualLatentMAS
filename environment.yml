@@ -1,229 +1,107 @@
 name: vllm_env
 channels:
-  - defaults
   - conda-forge
+  - defaults
 dependencies:
-  - aom=3.13.2
+  - python=3.12
+  - pip
   - blas=1.0=openblas
-  - bzip2=1.0.8=h80987f9_6
-  - ca-certificates=2026.5.14=hca03da5_0
-  - cairo=1.18.4=h191e429_0
-  - contourpy=1.3.3=py312h20e30b6_0
-  - cycler=0.12.1=py312hca03da5_0
-  - dav1d=1.5.3=hc066506_0
-  - fontconfig=2.17.1=hf3d7e2b_0
-  - fonttools=4.63.0=py312haa24f5a_0
-  - freetype=2.14.1=h7cdc921_0
-  - fribidi=1.0.16=hc94a249_1
-  - gettext=0.25.1=h50c8ec2_0
-  - gettext-tools=0.25.1=h61de102_0
-  - graphite2=1.3.15=h167f10d_0
-  - harfbuzz=12.3.0=h0c4e95f_2
-  - icu=78.3=hb00977c_0
-  - kiwisolver=1.4.9=py312haeee614_0
-  - lcms2=2.19.1=hac32b83_0
-  - lerc=4.1.0=h50f4ffc_2
-  - libasprintf=0.25.1=h7b764f5_0
-  - libasprintf-devel=0.25.1=h7b764f5_0
-  - libavif=1.3.0=hfa98c0d_1
-  - libcxx=22.1.2=hf894667_0
-  - libdeflate=1.22=h80987f9_0
-  - libexpat=2.8.1=h50f4ffc_0
-  - libffi=3.4.8=hcfc0b96_2
-  - libgettextpo=0.25.1=h7b764f5_0
-  - libgettextpo-devel=0.25.1=h7b764f5_0
-  - libgfortran=15.2.0=h09d7db9_1
-  - libgfortran5=15.2.0=hb654fa1_1
-  - libglib=2.86.3=hcacd345_0
-  - libiconv=1.18=h92f5915_0
-  - libintl=0.25.1=h7b764f5_0
-  - libintl-devel=0.25.1=h7b764f5_0
-  - libjpeg-turbo=3.1.3=haa24f5a_0
-  - libopenblas=0.3.31=h7813bb4_2
-  - libopenjpeg=2.5.4=haa24f5a_1
-  - libpng=1.6.56=hc9243e6_0
-  - libtiff=4.7.1=h2f141fa_1
-  - libwebp-base=1.6.0=h92b2d59_0
-  - libxcb=1.17.0=h3fc13f7_0
-  - libxml2=2.14.6=h1ea6aa3_1
-  - libzlib=1.3.2=hb4cf58c_0
-  - llvm-openmp=22.1.2=h4714345_1
-  - lz4-c=1.9.4=h313beb8_1
-  - matplotlib=3.10.9=py312hca03da5_0
-  - matplotlib-base=3.10.9=py312haa222d5_0
-  - ncurses=6.5=hee39554_0
-  - numpy-base=2.4.6=py312h23175f9_0
-  - openssl=3.5.7=ha0b305a_0
-  - packaging=26.0=py312hca03da5_0
-  - pcre2=10.46=h1dacb4a_0
-  - pillow=12.2.0=py312h835d87b_1
-  - pixman=0.46.4=h09dc60e_0
-  - pthread-stubs=0.3=h1a28f6b_1
-  - pyparsing=3.2.5=py312hca03da5_0
-  - python=3.12.13=hd7e0f33_1
-  - python-dateutil=2.9.0post0=py312hca03da5_2
-  - readline=8.3=h0b18652_0
-  - six=1.17.0=py312hca03da5_0
-  - sqlite=3.51.2=h67002bf_0
-  - tk=8.6.15=hcd8a7d5_0
-  - tornado=6.5.5=py312haa24f5a_0
-  - tzdata=2026b=he532380_0
-  - wheel=0.46.3=py312hca03da5_0
-  - xorg-libxau=1.0.12=h3fc13f7_0
-  - xorg-libxdmcp=1.1.5=h3fc13f7_0
-  - xz=5.8.2=h8bbcb1d_0
-  - zlib=1.3.2=hb4cf58c_0
-  - zstd=1.5.7=h817c040_0
+  - bzip2=1.0.8
+  - ca-certificates
+  - cairo
+  - contourpy
+  - cycler
+  - fontconfig
+  - fonttools
+  - freetype
+  - lcms2
+  - matplotlib
+  - matplotlib-base
+  - ncurses
+  - numpy
+  - openssl
+  - pandas
+  - pillow
+  - pyparsing
+  - python-dateutil
+  - readline
+  - six
+  - sqlite
+  - tk
+  - tornado
+  - tzdata
+  - wheel
+  - xz
+  - zlib
+  - zstd
   - pip:
-      - accelerate==1.13.0
-      - aiohappyeyeballs==2.6.2
-      - aiohttp==3.14.1
-      - aiosignal==1.4.0
-      - annotated-doc==0.0.4
-      - annotated-types==0.7.0
-      - anthropic==0.109.1
-      - anyio==4.13.0
-      - apache-tvm-ffi==0.1.12
-      - astor==0.8.1
-      - attrs==26.1.0
-      - blake3==1.0.8
-      - cachetools==7.1.4
-      - cbor2==6.1.2
-      - certifi==2026.5.20
-      - cffi==2.0.0
-      - charset-normalizer==3.4.7
-      - click==8.4.1
-      - cloudpickle==3.1.2
-      - compressed-tensors==0.17.0
-      - cryptography==48.0.1
-      - datasets==5.0.0
-      - depyf==0.20.0
-      - detect-installer==0.1.0
-      - dill==0.4.1
-      - diskcache==5.6.3
-      - distro==1.9.0
-      - dnspython==2.8.0
-      - docstring-parser==0.18.0
-      - einops==0.8.2
-      - email-validator==2.3.0
-      - fastapi==0.136.3
-      - fastapi-cli==0.0.24
-      - fastapi-cloud-cli==0.19.0
-      - fastar==0.11.0
-      - filelock==3.29.2
-      - frozenlist==1.8.0
-      - fsspec==2026.4.0
-      - gguf==0.19.0
-      - googleapis-common-protos==1.75.0
-      - grpcio==1.81.0
-      - h11==0.16.0
-      - hf-xet==1.5.1
-      - httpcore==1.0.9
-      - httptools==0.8.0
-      - httpx==0.28.1
-      - httpx-sse==0.4.3
-      - huggingface-hub==1.18.0
-      - idna==3.18
-      - ijson==3.5.0
-      - interegular==0.3.3
-      - jinja2==3.1.6
-      - jiter==0.15.0
-      - jmespath==1.1.0
-      - jsonschema==4.26.0
-      - jsonschema-specifications==2025.9.1
-      - lark==1.2.2
-      - llguidance==1.7.6
-      - llvmlite==0.47.0
-      - lm-format-enforcer==0.11.3
-      - loguru==0.7.3
-      - markdown-it-py==4.2.0
-      - markupsafe==3.0.3
-      - mcp==1.27.2
-      - mdurl==0.1.2
-      - mistral-common==1.11.3
-      - mlx==0.31.2
-      - mlx-metal==0.31.2
-      - model-hosting-container-standards==0.1.15
-      - mpmath==1.3.0
-      - msgspec==0.21.1
-      - multidict==6.7.1
-      - multiprocess==0.70.19
-      - networkx==3.6.1
-      - ninja==1.13.0
-      - numba==0.65.0
-      - numpy==2.3.5
-      - openai==2.41.0
-      - openai-harmony==0.0.8
-      - opencv-python-headless==4.13.0.92
-      - opentelemetry-api==1.42.1
-      - opentelemetry-exporter-otlp==1.42.1
-      - opentelemetry-exporter-otlp-proto-common==1.42.1
-      - opentelemetry-exporter-otlp-proto-grpc==1.42.1
-      - opentelemetry-exporter-otlp-proto-http==1.42.1
-      - opentelemetry-proto==1.42.1
-      - opentelemetry-sdk==1.42.1
-      - opentelemetry-semantic-conventions==0.63b1
-      - opentelemetry-semantic-conventions-ai==0.5.1
-      - outlines-core==0.2.14
-      - pandas==3.0.3
-      - partial-json-parser==0.2.1.1.post7
-      - pip==26.1.2
-      - prometheus-client==0.25.0
-      - prometheus-fastapi-instrumentator==8.0.0
-      - propcache==0.5.2
-      - protobuf==6.33.6
-      - psutil==7.2.2
-      - py-cpuinfo==9.0.0
-      - pyarrow==24.0.0
-      - pybase64==1.4.3
-      - pycountry==26.2.16
-      - pycparser==3.0
-      - pydantic==2.13.4
-      - pydantic-core==2.46.4
-      - pydantic-extra-types==2.11.1
-      - pydantic-settings==2.14.1
-      - pygments==2.20.0
-      - pyjwt==2.13.0
-      - python-dotenv==1.2.2
-      - python-json-logger==4.1.0
-      - python-multipart==0.0.32
-      - pyyaml==6.0.3
-      - pyzmq==27.1.0
-      - referencing==0.37.0
-      - regex==2026.5.9
-      - requests==2.34.2
-      - rich==15.0.0
-      - rich-toolkit==0.20.1
-      - rignore==0.7.6
-      - rpds-py==2026.5.1
-      - safetensors==0.8.0
-      - sentencepiece==0.2.1
-      - sentry-sdk==2.62.0
-      - setproctitle==1.3.7
-      - setuptools==77.0.3
-      - shellingham==1.5.4
-      - sniffio==1.3.1
-      - sse-starlette==3.4.4
-      - starlette==1.2.1
-      - supervisor==4.3.0
-      - sympy==1.14.0
-      - tiktoken==0.13.0
-      - tokenizers==0.22.2
-      - torch==2.11.0
-      - torchaudio==2.11.0
-      - torchvision==0.26.0
-      - tqdm==4.68.2
-      - transformers==5.11.0
-      - typer==0.25.1
-      - typing-extensions==4.15.0
-      - typing-inspection==0.4.2
-      - urllib3==2.7.0
-      - uvicorn==0.49.0
-      - uvloop==0.22.1
-      - vllm==0.22.1rc1.dev365+g2131b597b.cpu
-      - watchfiles==1.2.0
-      - websockets==16.0
-      - xgrammar==0.2.1
-      - xxhash==3.7.0
-      - yarl==1.24.2
-prefix: /opt/anaconda3/envs/vllm_env
+    # Core Deep Learning stack built for Linux GPU
+    --extra-index-url https://pytorch.org
+    torch==2.5.1
+    torchvision==0.20.1
+    torchaudio==2.5.1
+    vllm==0.6.4.post1
+    
+    # HuggingFace & Dataset infrastructure 
+    transformers==4.46.3
+    tokenizers==0.20.3
+    datasets==3.1.0
+    huggingface-hub==0.26.2
+    accelerate==1.1.1
+    safetensors==0.4.5
+    sentencepiece==0.2.0
+    tiktoken==0.8.0
+
+    # API Server and Async utilities
+    fastapi==0.115.5
+    uvicorn==0.32.1
+    openai==1.55.0
+    pydantic==2.9.2
+    jinja2==3.1.4
+    click==8.1.7
+    anyio==4.6.2.post1
+    starlette==0.41.3
+    
+    # Supporting libraries (Cleaned of Apple MLX packages)
+    aiohttp==3.11.7
+    aiosignal==1.3.1
+    attrs==24.2.0
+    certifi==2024.8.30
+    cffi==1.17.1
+    charset-normalizer==3.4.0
+    cloudpickle==3.1.0
+    compressed-tensors==0.7.1
+    cryptography==43.0.3
+    dill==0.3.9
+    distro==1.9.0
+    filelock==3.16.1
+    frozenlist==1.5.0
+    fsspec==2024.10.0
+    idna==3.10
+    lark==1.2.2
+    lm-format-enforcer==0.10.6
+    multidict==6.1.0
+    multiprocess==0.70.17
+    networkx==3.4.2
+    ninja==1.11.1.1
+    numexpr==2.10.1
+    outlines-core==0.1.1
+    propcache==0.2.0
+    protobuf==5.28.3
+    psutil==6.1.0
+    py-cpuinfo==9.0.0
+    pyarrow==18.0.0
+    pycparser==2.22
+    pyyaml==6.0.2
+    regex==2024.11.6
+    requests==2.32.3
+    rich==13.9.4
+    sniffio==1.3.1
+    sympy==1.13.1
+    tqdm==4.67.0
+    typing-extensions==4.12.2
+    urllib3==2.2.3
+    uvloop==0.21.0
+    xgrammar==0.1.7
+    xxhash==3.5.0
+    yarl==1.18.0
