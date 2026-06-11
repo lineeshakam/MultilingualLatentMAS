@@ -14,17 +14,17 @@ except Exception:
 
 
 _LANGUAGE_DIRECTIVES = {
-    "en": "Respond entirely in English.",
-    "bn": "সম্পূর্ণভাবে বাংলায় উত্তর দিন।",
-    "de": "Antworten Sie vollständig auf Deutsch.",
-    "es": "Responde completamente en español.",
-    "fr": "Répondez entièrement en français.",
-    "ja": "回答はすべて日本語で書いてください。",
-    "ru": "Отвечайте полностью на русском языке.",
-    "sw": "Jibu kabisa kwa Kiswahili.",
-    "te": "పూర్తిగా తెలుగులో సమాధానం ఇవ్వండి.",
-    "th": "ตอบเป็นภาษาไทยทั้งหมด",
-    "zh": "请完全用中文回答。",
+    "en": "Respond entirely in English, including any reasoning inside <think> tags.",
+    "bn": "<think> ট্যাগের ভিতরের যুক্তিসহ সম্পূর্ণভাবে বাংলায় উত্তর দিন।",
+    "de": "Antworten Sie vollständig auf Deutsch, einschließlich aller Überlegungen innerhalb von <think>-Tags.",
+    "es": "Responde completamente en español, incluido cualquier razonamiento dentro de las etiquetas <think>.",
+    "fr": "Répondez entièrement en français, y compris tout raisonnement à l'intérieur des balises <think>.",
+    "ja": "<think>タグ内の推論も含めて、回答はすべて日本語で書いてください。",
+    "ru": "Отвечайте полностью на русском языке, включая любые рассуждения внутри тегов <think>.",
+    "sw": "Jibu kabisa kwa Kiswahili, ikiwemo hoja yoyote ndani ya tagi za <think>.",
+    "te": "<think> ట్యాగ్‌లలోని ఏ తర్కాన్నైనా కలుపుకుని పూర్తిగా తెలుగులో సమాధానం ఇవ్వండి.",
+    "th": "ตอบเป็นภาษาไทยทั้งหมด รวมถึงการให้เหตุผลภายในแท็ก <think>",
+    "zh": "请完全用中文回答，包括 <think> 标签内的任何推理。",
 }
 
 
