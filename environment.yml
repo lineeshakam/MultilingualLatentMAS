@@ -36,11 +36,11 @@ dependencies:
   - zstd
   - pip:
     # Core Deep Learning stack built for Linux GPU
-    --extra-index-url https://pytorch.org
-    torch==2.5.1
-    torchvision==0.20.1
-    torchaudio==2.5.1
-    vllm==0.6.4.post1
+    #--extra-index-url https://pytorch.org
+    #torch==2.5.1
+    #torchvision==0.20.1
+    #torchaudio==2.5.1
+    #vllm==0.6.4.post1
     
     # HuggingFace & Dataset infrastructure 
     transformers==4.46.3
