@@ -341,6 +341,54 @@ class ModelWrapper:
             return_tensors="pt",
         )["input_ids"].to(self.device)
 
+    def _last_token_hidden_by_layer(self, outputs, last_token_index: int) -> torch.Tensor:
+        hidden_by_layer = []
+        final_norm = getattr(getattr(self.model, "model", None), "norm", None)
+        num_layers = len(outputs.hidden_states)
+        for layer_idx, h in enumerate(outputs.hidden_states):
+            h_last = h[:, last_token_index, :]
+            if final_norm is not None and layer_idx != num_layers - 1:
+                h_last = final_norm(h_last)
+            hidden_by_layer.append(h_last.detach())
+        return torch.stack(hidden_by_layer, dim=1)
+
+    @torch.no_grad()
+    def forward_last_hidden_by_layer(
+        self,
+        input_ids: torch.Tensor,
+        attention_mask: Optional[torch.Tensor] = None,
+        *,
+        past_key_values: Optional[Tuple] = None,
+    ) -> Tuple[torch.Tensor, Optional[Tuple]]:
+        if input_ids.dim() != 2:
+            raise ValueError("input_ids must be 2D with shape [batch, seq_len]")
+        if attention_mask is None:
+            attention_mask = torch.ones_like(input_ids, device=self.device)
+        else:
+            attention_mask = attention_mask.to(self.device)
+
+        last_token_index = int(attention_mask[0].sum().item()) - 1
+
+        if past_key_values is not None:
+            past_len = _past_length(past_key_values)
+            if past_len > 0:
+                past_mask = torch.ones(
+                    (attention_mask.shape[0], past_len),
+                    dtype=attention_mask.dtype,
+                    device=attention_mask.device,
+                )
+                attention_mask = torch.cat([past_mask, attention_mask], dim=-1)
+
+        outputs = self.model(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            past_key_values=past_key_values,
+            use_cache=True,
+            output_hidden_states=True,
+            return_dict=True,
+        )
+        return self._last_token_hidden_by_layer(outputs, last_token_index), outputs.past_key_values
+
     @torch.no_grad()
     def generate_latent_batch(
         self,
@@ -416,6 +464,71 @@ class ModelWrapper:
             last_hidden = outputs.hidden_states[-1][:, -1, :]
 
         return past
+
+    @torch.no_grad()
+    def generate_latent_batch_with_trace(
+        self,
+        input_ids: torch.Tensor,
+        attention_mask: Optional[torch.Tensor] = None,
+        *,
+        latent_steps: int,
+        past_key_values: Optional[Tuple] = None,
+    ) -> Tuple[Tuple, torch.Tensor]:
+        if input_ids.dim() != 2:
+            raise ValueError("input_ids must be 2D with shape [batch, seq_len]")
+
+        if attention_mask is None:
+            attention_mask = torch.ones_like(input_ids, device=self.device)
+        else:
+            attention_mask = attention_mask.to(self.device)
+
+        prompt_last_token_index = int(attention_mask[0].sum().item()) - 1
+
+        if past_key_values is not None:
+            past_len = _past_length(past_key_values)
+            if past_len > 0:
+                past_mask = torch.ones(
+                    (attention_mask.shape[0], past_len),
+                    dtype=attention_mask.dtype,
+                    device=attention_mask.device,
+                )
+                attention_mask = torch.cat([past_mask, attention_mask], dim=-1)
+
+        outputs = self.model(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            past_key_values=past_key_values,
+            use_cache=True,
+            output_hidden_states=True,
+            return_dict=True,
+        )
+        past = outputs.past_key_values
+        last_hidden = outputs.hidden_states[-1][:, -1, :]
+        trace = [self._last_token_hidden_by_layer(outputs, prompt_last_token_index)]
+
+        for _ in range(latent_steps):
+            source_model = self.HF_model if hasattr(self, "HF_model") else self.model
+            latent_vec = self._apply_latent_realignment(last_hidden, source_model)
+            latent_embed = latent_vec.unsqueeze(1)
+            past_len = _past_length(past)
+            latent_mask = torch.ones(
+                (latent_embed.shape[0], past_len + 1),
+                dtype=torch.long,
+                device=latent_embed.device,
+            )
+            outputs = self.model(
+                inputs_embeds=latent_embed,
+                attention_mask=latent_mask,
+                past_key_values=past,
+                use_cache=True,
+                output_hidden_states=True,
+                return_dict=True,
+            )
+            past = outputs.past_key_values
+            last_hidden = outputs.hidden_states[-1][:, -1, :]
+            trace.append(self._last_token_hidden_by_layer(outputs, 0))
+
+        return past, torch.stack(trace, dim=1)
     
     @torch.no_grad()
     def generate_latent_batch_hidden_state(
