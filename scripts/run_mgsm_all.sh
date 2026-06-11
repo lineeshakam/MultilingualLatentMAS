@@ -9,7 +9,7 @@ langs=(bn de en es fr ja ru sw te th zh)
 MODEL=${1:-Qwen/Qwen3-4B}
 METHOD=${2:-latent_mas}
 PROMPT=${3:-sequential}
-DEVICE=${4:-mps}
+DEVICE=${4:-cuda}
 
 for L in "${langs[@]}"; do
   echo "=== $L ==="
