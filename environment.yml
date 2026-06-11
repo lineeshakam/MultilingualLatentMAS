@@ -1,6 +1,7 @@
 name: vllm_env
 channels:
   - defaults
+  - conda forge
 dependencies:
   - aom=3.13.2=hce7a89e_0
   - blas=1.0=openblas
