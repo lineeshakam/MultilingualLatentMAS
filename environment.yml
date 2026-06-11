@@ -3,7 +3,7 @@ channels:
   - defaults
   - conda-forge
 dependencies:
-  - aom=3.13.2=hce7a89e_0
+  - aom=3.13.2
   - blas=1.0=openblas
   - bzip2=1.0.8=h80987f9_6
   - ca-certificates=2026.5.14=hca03da5_0
