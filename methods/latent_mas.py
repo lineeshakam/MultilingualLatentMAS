@@ -9,10 +9,10 @@ from utils import extract_gsm8k_answer, normalize_answer, extract_markdown_pytho
 import torch
 import argparse
 try:
-    #make sure we aren't running into vllm errors bc that seems to be a common thing
+    # Avoid importing a vendored `vllm/` inside the repo workspace
     spec = importlib.util.find_spec("vllm")
     if spec is None or (spec.origin and os.getcwd() in os.path.abspath(spec.origin)):
-        raise ImportError("vllm not available")
+        raise ImportError("vllm not available or vendored locally; skipping vllm backend")
     try:
         from vllm import SamplingParams
     except Exception:

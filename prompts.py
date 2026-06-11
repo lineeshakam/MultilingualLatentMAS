@@ -1,7 +1,60 @@
 
+import os
+import json
+
+# Load optional prompt translations (per-language) from assets/prompt_translations.json
+_TRANSLATIONS = {}
+try:
+    _p = os.path.join(os.path.dirname(__file__), "assets", "prompt_translations.json")
+    if os.path.exists(_p):
+        with open(_p, "r", encoding="utf-8") as _f:
+            _TRANSLATIONS = json.load(_f)
+except Exception:
+    _TRANSLATIONS = {}
+
+
+def _get_lang_from_args(args):
+    if not args:
+        return "en"
+    return getattr(args, "mgsm_lang", None) or getattr(args, "lang", None) or "en"
+
+
+def _fetch_translation(section: str, role: str, task: str, lang: str):
+    try:
+        lang_map = _TRANSLATIONS.get(lang, {})
+        sec = lang_map.get(section, {})
+        # direct role replacement
+        if isinstance(sec.get(role), str):
+            return sec.get(role)
+        # judger special cases
+        if role == "judger":
+            # try per-task judger template
+            jud = sec.get("judger", {})
+            if isinstance(jud, dict) and isinstance(jud.get(task), str):
+                return jud.get(task)
+            if isinstance(sec.get("judger_default"), str):
+                return sec.get("judger_default")
+        # single-agent default
+        if section == "single_agent" and isinstance(sec.get("default"), str):
+            return sec.get("default")
+        return None
+    except Exception:
+        return None
+
+
 def build_agent_message_sequential_latent_mas(role: str, question: str, context: str = "", method=None, args=None):
 
-    system_message = "You are Qwen, created by Alibaba Cloud. You are a helpful assistant."
+    lang = _get_lang_from_args(args)
+    system_message = _TRANSLATIONS.get(lang, {}).get("system_message", "You are Qwen, created by Alibaba Cloud. You are a helpful assistant.")
+
+    # If a full translation template exists, use it
+    tr = _fetch_translation("sequential_latent", role, getattr(args, "task", ""), lang)
+    if tr is not None:
+        user_prompt = tr.format(question=question, context=context)
+        return [
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": user_prompt},
+        ]
 
     assert method in ["latent_mas"], "this prompt only for latent_mas method"
     assert "qwen" in args.model_name.lower(), "this prompt only for qwen models"
@@ -117,7 +170,16 @@ Now, reason step by step and output the final answer inside \\boxed{{YOUR_FINAL_
 
 def build_agent_message_hierarchical_latent_mas(role: str, question: str, context: str = "", method=None, args=None):
 
-    system_message = "You are Qwen, created by Alibaba Cloud. You are a helpful assistant."
+    lang = _get_lang_from_args(args)
+    system_message = _TRANSLATIONS.get(lang, {}).get("system_message", "You are Qwen, created by Alibaba Cloud. You are a helpful assistant.")
+
+    tr = _fetch_translation("hierarchical_latent", role, getattr(args, "task", ""), lang)
+    if tr is not None:
+        user_content = tr.format(question=question, context=context)
+        return [
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": user_content},
+        ]
 
     assert method in ["latent_mas"], "this prompt only for latent_mas method"
     assert "qwen" in args.model_name.lower(), "this prompt only for qwen models"
@@ -345,6 +407,17 @@ def build_agent_messages_sequential_text_mas(role: str, question: str, context: 
     assert method in ["text_mas"], "only for text_mas method"
     assert "qwen" in args.model_name.lower(), "only for qwen models"
 
+    lang = _get_lang_from_args(args)
+    system_message = _TRANSLATIONS.get(lang, {}).get("system_message", "You are Qwen, created by Alibaba Cloud. You are a helpful assistant.")
+
+    tr = _fetch_translation("text_mas_sequential", role, getattr(args, "task", ""), lang)
+    if tr is not None:
+        user_content = tr.format(question=question, context=context)
+        return [
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": user_content},
+        ]
+
     # truncate context if needed
     ctx = context[: args.text_mas_context_length]
 
@@ -515,6 +588,17 @@ def build_agent_messages_hierarchical_text_mas(role: str, question: str, context
     assert method in ["text_mas"], "this prompt only for text_mas method"
     assert "qwen" in args.model_name.lower(), "this prompt only for qwen models"
     
+    lang = _get_lang_from_args(args)
+    system_message = _TRANSLATIONS.get(lang, {}).get("system_message", "You are Qwen, created by Alibaba Cloud. You are a helpful assistant.")
+
+    tr = _fetch_translation("text_mas_hierarchical", role, getattr(args, "task", ""), lang)
+    if tr is not None:
+        user_content = tr.format(question=question, context=context)
+        return [
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": user_content},
+        ]
+
     if args.task in ['gsm8k', 'aime2024', 'aime2025']:
         if role == "planner":
             user_content = f"""
@@ -697,6 +781,17 @@ def build_agent_messages_single_agent(question: str, args=None):
 
     assert args.method in ["baseline"], "this prompt only for baseline method (single agent)"
     assert "qwen" in args.model_name.lower(), "this prompt only for qwen models"
+
+    lang = _get_lang_from_args(args)
+    system_message = _TRANSLATIONS.get(lang, {}).get("system_message", "You are Qwen, created by Alibaba Cloud. You are a helpful assistant.")
+
+    tr = _fetch_translation("single_agent", "default", getattr(args, "task", ""), lang)
+    if tr is not None:
+        user_content = tr.format(question=question)
+        return [
+            {"role": "system", "content": system_message},
+            {"role": "user", "content": user_content},
+        ]
 
     task = args.task
 
