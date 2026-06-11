@@ -1,7 +1,7 @@
 from typing import Dict, List
 
 from models import ModelWrapper
-from prompts import build_agent_messages_single_agent
+from prompts import build_agent_messages_single_agent, get_assistant_think_prefill
 from utils import extract_gsm8k_answer, normalize_answer, extract_markdown_python_block, run_with_timeout
 
 
@@ -37,6 +37,21 @@ class BaselineMethod:
         prompts, input_ids, attention_mask, tokens_batch = self.model.prepare_chat_batch(
             batch_messages, add_generation_prompt=True
         )
+        think_prefill = get_assistant_think_prefill(self.args)
+        if think_prefill:
+            prompts = [f"{prompt}{think_prefill}" for prompt in prompts]
+            encoded = self.model.tokenizer(
+                prompts,
+                return_tensors="pt",
+                padding=True,
+                add_special_tokens=False,
+            )
+            input_ids = encoded["input_ids"].to(self.model.device)
+            attention_mask = encoded["attention_mask"].to(self.model.device)
+            tokens_batch = []
+            for ids_row, mask_row in zip(input_ids, attention_mask):
+                active_ids = ids_row[mask_row.bool()].tolist()
+                tokens_batch.append(self.model.tokenizer.convert_ids_to_tokens(active_ids))
         
         if self.use_vllm:
             generated_batch = self.model.vllm_generate_text_batch(
@@ -58,6 +73,8 @@ class BaselineMethod:
         
         for idx, item in enumerate(items):
             generated_text = generated_batch[idx]
+            if think_prefill:
+                generated_text = f"{think_prefill}{generated_text}"
             
             if self.task in ['mbppplus', 'humanevalplus']:
                 pred = extract_markdown_python_block(generated_text)

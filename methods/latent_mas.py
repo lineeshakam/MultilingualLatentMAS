@@ -4,7 +4,7 @@ import os
 
 from . import default_agents
 from models import ModelWrapper, _past_length
-from prompts import build_agent_message_sequential_latent_mas, build_agent_message_hierarchical_latent_mas
+from prompts import build_agent_message_sequential_latent_mas, build_agent_message_hierarchical_latent_mas, get_assistant_think_prefill
 from utils import extract_gsm8k_answer, normalize_answer, extract_markdown_python_block, run_with_timeout
 import torch
 import argparse
@@ -132,11 +132,14 @@ class LatentMASMethod:
             prompts, input_ids, attention_mask, tokens_batch = self.model.prepare_chat_batch(
                 batch_messages, add_generation_prompt=True
             )
+            think_prefill = get_assistant_think_prefill(self.args)
 
             if agent.role != "judger":
                 prev_past_len = _past_length(past_kv)
 
-                if self.args.think:
+                if think_prefill:
+                    wrapped_prompts = [f"{prompt}{think_prefill}" for prompt in prompts]
+                elif self.args.think:
                         wrapped_prompts = [f"{prompt}<think>" for prompt in prompts]
                 else: 
                     wrapped_prompts = prompts
@@ -184,7 +187,9 @@ class LatentMASMethod:
 
                 past_for_decoding = past_kv if self.latent_steps > 0 else None
 
-                if self.args.think:
+                if think_prefill:
+                    judger_prompts = [f"{prompt}{think_prefill}" for prompt in prompts]
+                elif self.args.think:
                         judger_prompts = [f"{prompt}<think>" for prompt in prompts]
                 else: 
                     judger_prompts = prompts
@@ -211,6 +216,8 @@ class LatentMASMethod:
                 )
                 for idx in range(batch_size):
                     final_text = generated_batch[idx].strip()
+                    if think_prefill:
+                        final_text = f"{think_prefill}{final_text}"
                     final_texts[idx] = final_text
                     mask = judger_mask[idx].bool()
                     trimmed_ids = judger_ids[idx][mask].to("cpu").tolist()
@@ -301,12 +308,15 @@ class LatentMASMethod:
             prompts, input_ids, attention_mask, tokens_batch = self.model.prepare_chat_batch(
                 batch_messages, add_generation_prompt=True
             )
+            think_prefill = get_assistant_think_prefill(self.args)
 
             if agent.role != "judger":
                 prev_past_len = _past_length(past_kv)
 
                 # to wrap all latent thoughts from previous agents
-                if self.args.think:
+                if think_prefill:
+                    wrapped_prompts = [f"{prompt}{think_prefill}" for prompt in prompts]
+                elif self.args.think:
                         wrapped_prompts = [f"{prompt}<think>" for prompt in prompts]
                 else: 
                     wrapped_prompts = prompts
@@ -366,7 +376,9 @@ class LatentMASMethod:
                 # A stack of [B, L_i, H]
                 past_embedding = torch.cat(embedding_record, dim=1).to(self.vllm_device)
                 
-                if self.args.think:
+                if think_prefill:
+                    judger_prompts = [f"{prompt}{think_prefill}" for prompt in prompts]
+                elif self.args.think:
                     judger_prompts = [f"{prompt}<think>" for prompt in prompts]
                 else: 
                     judger_prompts = prompts
@@ -434,6 +446,8 @@ class LatentMASMethod:
                     
                 for idx in range(batch_size):
                     text_out = generated_texts[idx].strip()
+                    if think_prefill:
+                        text_out = f"{think_prefill}{text_out}"
                     final_texts[idx] = text_out
                     agent_traces[idx].append(
                         {

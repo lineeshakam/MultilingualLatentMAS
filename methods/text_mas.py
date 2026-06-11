@@ -3,7 +3,7 @@ from typing import Dict, List
 from . import default_agents
 from models import ModelWrapper
 # from prompts import build_agent_messages, build_agent_messages_v6, build_agent_messages_v6_text_mas
-from prompts import build_agent_messages_hierarchical_text_mas, build_agent_messages_sequential_text_mas
+from prompts import build_agent_messages_hierarchical_text_mas, build_agent_messages_sequential_text_mas, get_assistant_think_prefill
 from utils import extract_gsm8k_answer, normalize_answer, extract_markdown_python_block, run_with_timeout
 import argparse
 import pdb
@@ -68,6 +68,21 @@ class TextMASMethod:
             prompts, input_ids, attention_mask, tokens_batch = self.model.prepare_chat_batch(
                 batch_messages, add_generation_prompt=True
             )
+            think_prefill = get_assistant_think_prefill(self.args)
+            if think_prefill:
+                prompts = [f"{prompt}{think_prefill}" for prompt in prompts]
+                encoded = self.model.tokenizer(
+                    prompts,
+                    return_tensors="pt",
+                    padding=True,
+                    add_special_tokens=False,
+                )
+                input_ids = encoded["input_ids"].to(self.model.device)
+                attention_mask = encoded["attention_mask"].to(self.model.device)
+                tokens_batch = []
+                for ids_row, mask_row in zip(input_ids, attention_mask):
+                    active_ids = ids_row[mask_row.bool()].tolist()
+                    tokens_batch.append(self.model.tokenizer.convert_ids_to_tokens(active_ids))
 
             if self.model.use_vllm:
                 generated_texts = self.model.vllm_generate_text_batch(
@@ -99,6 +114,8 @@ class TextMASMethod:
             for idx in range(batch_size):
 
                 text_out = generated_texts[idx].strip()
+                if think_prefill:
+                    text_out = f"{think_prefill}{text_out}"
 
                 if self.args.prompt == "hierarchical":
                     formatted_output = f"[{agent_name_map_for_prompt_hierarchical[agent.name]}]:\n{text_out}\n\n"

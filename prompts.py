@@ -28,10 +28,29 @@ _LANGUAGE_DIRECTIVES = {
 }
 
 
+_THINK_PREFILLS = {
+    "en": "<think>\nLet's reason step by step in English.\n",
+    "bn": "<think>\nচলুন বাংলায় ধাপে ধাপে যুক্তি করি।\n",
+    "de": "<think>\nLassen Sie uns Schritt für Schritt auf Deutsch überlegen.\n",
+    "es": "<think>\nRazonemos paso a paso en español.\n",
+    "fr": "<think>\nRaisonnons étape par étape en français.\n",
+    "ja": "<think>\n日本語で段階的に考えましょう。\n",
+    "ru": "<think>\nДавайте рассуждать шаг за шагом на русском языке.\n",
+    "sw": "<think>\nTufikiri hatua kwa hatua kwa Kiswahili.\n",
+    "te": "<think>\nతెలుగులో దశలవారీగా ఆలోచిద్దాం.\n",
+    "th": "<think>\nมาคิดทีละขั้นตอนเป็นภาษาไทยกัน\n",
+    "zh": "<think>\n让我们用中文一步一步推理。\n",
+}
+
+
 def _get_lang_from_args(args):
     if not args:
         return "en"
     return getattr(args, "mgsm_lang", None) or getattr(args, "lang", None) or "en"
+
+
+def get_assistant_think_prefill(args) -> str:
+    return _THINK_PREFILLS.get(_get_lang_from_args(args), "")
 
 
 def _with_language_directive(content: str, lang: str) -> str:
