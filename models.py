@@ -41,6 +41,12 @@ def _ensure_pad_token(tokenizer: AutoTokenizer) -> None:
             tokenizer.add_special_tokens({"pad_token": "<pad>"})
 
 
+def _default_model_dtype(device: torch.device) -> torch.dtype:
+    if device.type == "cuda":
+        return torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
+    return torch.float32
+
+
 def _past_length(past_key_values: Optional[Tuple]) -> int:
     if not past_key_values:
         return 0
@@ -112,7 +118,7 @@ class ModelWrapper:
             if use_second_hf:
                 self.HF_model = AutoModelForCausalLM.from_pretrained(
                     model_name,
-                    torch_dtype=(torch.bfloat16 if torch.cuda.is_available() else torch.float32),
+                    torch_dtype=_default_model_dtype(torch.device(args.device2)),
                 ).to(args.device2).eval() 
                 self.embedding_layer = self.HF_model.get_input_embeddings()
                 self.HF_device = args.device2
@@ -129,7 +135,7 @@ class ModelWrapper:
         with torch.no_grad():
             self.model = AutoModelForCausalLM.from_pretrained(
                 model_name,
-                torch_dtype=(torch.bfloat16 if torch.cuda.is_available() else torch.float32),
+                torch_dtype=_default_model_dtype(device),
             )
         if len(self.tokenizer) != self.model.get_input_embeddings().weight.shape[0]:
             self.model.resize_token_embeddings(len(self.tokenizer))
