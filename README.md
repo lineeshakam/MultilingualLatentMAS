@@ -41,10 +41,12 @@ python multilingual-latent-reasoning/run_latent_mas_agent_similarity.py \
   --ref_lang en \
   --prompt sequential \
   --latent_steps 3 \
-  --device mps
+  --device mps \
+  --emergence_rank_threshold 1000 \
+  --emergence_layer_strategy final_layer
 ```
 
-
+# Prior Work - Monolingual LatentMAS
 
 
 
