@@ -1,0 +1,951 @@
+{
+  "meta": {
+    "model": "Qwen/Qwen3-4B",
+    "prompt": "sequential",
+    "latent_steps": 3,
+    "ref_lang": "en",
+    "languages": [
+      "bn",
+      "de",
+      "en",
+      "es",
+      "fr",
+      "ja",
+      "ru",
+      "sw",
+      "te",
+      "th",
+      "zh"
+    ],
+    "cosine_definition": "mean cosine similarity to English across agents, latent steps, and layers",
+    "latent_reasoning_score_definition": "Mean across agents of 1 - emergence_step / max_step, where emergence_step is the first latent step whose final-layer gold first-token rank is <= emergence_rank_threshold. If the gold token never emerges, that agent score is 0.",
+    "emergence_rank_threshold": 1000,
+    "emergence_layer_strategy": "final_layer"
+  },
+  "summaries": {
+    "bn": {
+      "lang": "bn",
+      "lang_norm": "BN",
+      "mean_cosine_to_english": 0.7476471811532974,
+      "latent_reasoning_score": 0.0625,
+      "agents": {
+        "planner": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.6834198236465454,
+          "last_layer_mean_cosine": 0.6644220352172852,
+          "final_step_mean_cosine": 0.07957945019006729,
+          "final_step_last_layer_cosine": 0.2279154658317566,
+          "final_step_last_layer_gold_logprob": -8.751031875610352,
+          "final_step_last_layer_gold_rank": 449.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -8.751031875610352,
+          "emergence_step": 3,
+          "latent_reasoning_score": 0.25,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "critic": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.7097898721694946,
+          "last_layer_mean_cosine": 0.6677985191345215,
+          "final_step_mean_cosine": 0.08972470462322235,
+          "final_step_last_layer_cosine": 0.13828451931476593,
+          "final_step_last_layer_gold_logprob": -15.535615921020508,
+          "final_step_last_layer_gold_rank": 2592.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -10.299225807189941,
+          "emergence_step": null,
+          "latent_reasoning_score": 0.0,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "refiner": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.689462423324585,
+          "last_layer_mean_cosine": 0.5601673722267151,
+          "final_step_mean_cosine": 0.09133831411600113,
+          "final_step_last_layer_cosine": -0.014550803229212761,
+          "final_step_last_layer_gold_logprob": -30.259613037109375,
+          "final_step_last_layer_gold_rank": 107167.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -9.45859432220459,
+          "emergence_step": null,
+          "latent_reasoning_score": 0.0,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "judger": {
+          "shape": [
+            1,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.9079166054725647,
+          "last_layer_mean_cosine": 0.9589094519615173,
+          "final_step_mean_cosine": 0.9079166054725647,
+          "final_step_last_layer_cosine": 0.9589094519615173,
+          "final_step_last_layer_gold_logprob": -43.734710693359375,
+          "final_step_last_layer_gold_rank": 151432.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -12.344350814819336,
+          "emergence_step": null,
+          "latent_reasoning_score": 0.0,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        }
+      }
+    },
+    "de": {
+      "lang": "de",
+      "lang_norm": "DE",
+      "mean_cosine_to_english": 0.8388287872076035,
+      "latent_reasoning_score": 0.3125,
+      "agents": {
+        "planner": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.8248057961463928,
+          "last_layer_mean_cosine": 0.8355923891067505,
+          "final_step_mean_cosine": 0.5178638696670532,
+          "final_step_last_layer_cosine": 0.6724163293838501,
+          "final_step_last_layer_gold_logprob": -17.109289169311523,
+          "final_step_last_layer_gold_rank": 100.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -11.056039810180664,
+          "emergence_step": 2,
+          "latent_reasoning_score": 0.5,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "critic": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.8572397232055664,
+          "last_layer_mean_cosine": 0.8638938665390015,
+          "final_step_mean_cosine": 0.6266969442367554,
+          "final_step_last_layer_cosine": 0.845227062702179,
+          "final_step_last_layer_gold_logprob": -25.746774673461914,
+          "final_step_last_layer_gold_rank": 449.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -9.942961692810059,
+          "emergence_step": 3,
+          "latent_reasoning_score": 0.25,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "refiner": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.7288789749145508,
+          "last_layer_mean_cosine": 0.6079161763191223,
+          "final_step_mean_cosine": 0.11429499089717865,
+          "final_step_last_layer_cosine": -0.024445081129670143,
+          "final_step_last_layer_gold_logprob": -21.69841957092285,
+          "final_step_last_layer_gold_rank": 44940.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -9.754450798034668,
+          "emergence_step": 2,
+          "latent_reasoning_score": 0.5,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "judger": {
+          "shape": [
+            1,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.9443906545639038,
+          "last_layer_mean_cosine": 0.9759330153465271,
+          "final_step_mean_cosine": 0.9443906545639038,
+          "final_step_last_layer_cosine": 0.9759330153465271,
+          "final_step_last_layer_gold_logprob": -43.01795959472656,
+          "final_step_last_layer_gold_rank": 151413.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -12.090215682983398,
+          "emergence_step": null,
+          "latent_reasoning_score": 0.0,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        }
+      }
+    },
+    "en": {
+      "lang": "en",
+      "lang_norm": "EN",
+      "mean_cosine_to_english": 1.0,
+      "latent_reasoning_score": 0.375,
+      "agents": {
+        "planner": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 1.0,
+          "last_layer_mean_cosine": 1.0,
+          "final_step_mean_cosine": 1.0,
+          "final_step_last_layer_cosine": 1.0000001192092896,
+          "final_step_last_layer_gold_logprob": -23.309677124023438,
+          "final_step_last_layer_gold_rank": 283.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -8.005878448486328,
+          "emergence_step": 2,
+          "latent_reasoning_score": 0.5,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "critic": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 1.0,
+          "last_layer_mean_cosine": 1.0,
+          "final_step_mean_cosine": 1.0,
+          "final_step_last_layer_cosine": 1.0000001192092896,
+          "final_step_last_layer_gold_logprob": -32.110755920410156,
+          "final_step_last_layer_gold_rank": 4999.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -7.5581865310668945,
+          "emergence_step": 2,
+          "latent_reasoning_score": 0.5,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "refiner": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 1.0,
+          "last_layer_mean_cosine": 1.0,
+          "final_step_mean_cosine": 1.0,
+          "final_step_last_layer_cosine": 1.0,
+          "final_step_last_layer_gold_logprob": -8.570113182067871,
+          "final_step_last_layer_gold_rank": 263.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -8.570113182067871,
+          "emergence_step": 2,
+          "latent_reasoning_score": 0.5,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "judger": {
+          "shape": [
+            1,
+            37,
+            2560
+          ],
+          "mean_cosine": 1.0,
+          "last_layer_mean_cosine": 1.0000001192092896,
+          "final_step_mean_cosine": 1.0,
+          "final_step_last_layer_cosine": 1.0000001192092896,
+          "final_step_last_layer_gold_logprob": -43.700984954833984,
+          "final_step_last_layer_gold_rank": 151428.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -11.432801246643066,
+          "emergence_step": null,
+          "latent_reasoning_score": 0.0,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        }
+      }
+    },
+    "es": {
+      "lang": "es",
+      "lang_norm": "ES",
+      "mean_cosine_to_english": 0.8541166335344315,
+      "latent_reasoning_score": 0.375,
+      "agents": {
+        "planner": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.8393447399139404,
+          "last_layer_mean_cosine": 0.8182964324951172,
+          "final_step_mean_cosine": 0.5541250109672546,
+          "final_step_last_layer_cosine": 0.6008124351501465,
+          "final_step_last_layer_gold_logprob": -18.791349411010742,
+          "final_step_last_layer_gold_rank": 1337.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -9.935517311096191,
+          "emergence_step": 2,
+          "latent_reasoning_score": 0.5,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "critic": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.9106374979019165,
+          "last_layer_mean_cosine": 0.9045019149780273,
+          "final_step_mean_cosine": 0.7860925197601318,
+          "final_step_last_layer_cosine": 0.8524636030197144,
+          "final_step_last_layer_gold_logprob": -24.25382423400879,
+          "final_step_last_layer_gold_rank": 1114.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -7.5217604637146,
+          "emergence_step": 2,
+          "latent_reasoning_score": 0.5,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "refiner": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.7223429083824158,
+          "last_layer_mean_cosine": 0.6309149265289307,
+          "final_step_mean_cosine": 0.07837886363267899,
+          "final_step_last_layer_cosine": -0.01214752346277237,
+          "final_step_last_layer_gold_logprob": -24.292705535888672,
+          "final_step_last_layer_gold_rank": 1165.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -8.943769454956055,
+          "emergence_step": 2,
+          "latent_reasoning_score": 0.5,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "judger": {
+          "shape": [
+            1,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.9441413879394531,
+          "last_layer_mean_cosine": 0.977835476398468,
+          "final_step_mean_cosine": 0.9441413879394531,
+          "final_step_last_layer_cosine": 0.977835476398468,
+          "final_step_last_layer_gold_logprob": -42.88938903808594,
+          "final_step_last_layer_gold_rank": 151394.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -12.254114151000977,
+          "emergence_step": null,
+          "latent_reasoning_score": 0.0,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        }
+      }
+    },
+    "fr": {
+      "lang": "fr",
+      "lang_norm": "FR",
+      "mean_cosine_to_english": 0.8358863890171051,
+      "latent_reasoning_score": 0.375,
+      "agents": {
+        "planner": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.8267732262611389,
+          "last_layer_mean_cosine": 0.7958935499191284,
+          "final_step_mean_cosine": 0.5157777667045593,
+          "final_step_last_layer_cosine": 0.4948267638683319,
+          "final_step_last_layer_gold_logprob": -16.167469024658203,
+          "final_step_last_layer_gold_rank": 426.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -10.873520851135254,
+          "emergence_step": 2,
+          "latent_reasoning_score": 0.5,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "critic": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.8697912096977234,
+          "last_layer_mean_cosine": 0.8897597789764404,
+          "final_step_mean_cosine": 0.6643655896186829,
+          "final_step_last_layer_cosine": 0.8900619149208069,
+          "final_step_last_layer_gold_logprob": -30.27703285217285,
+          "final_step_last_layer_gold_rank": 34750.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -8.899691581726074,
+          "emergence_step": 2,
+          "latent_reasoning_score": 0.5,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "refiner": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.7125715613365173,
+          "last_layer_mean_cosine": 0.6130145788192749,
+          "final_step_mean_cosine": 0.09147490561008453,
+          "final_step_last_layer_cosine": 0.0060500469990074635,
+          "final_step_last_layer_gold_logprob": -21.84288787841797,
+          "final_step_last_layer_gold_rank": 1262.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -9.330284118652344,
+          "emergence_step": 2,
+          "latent_reasoning_score": 0.5,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "judger": {
+          "shape": [
+            1,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.9344095587730408,
+          "last_layer_mean_cosine": 0.9696540236473083,
+          "final_step_mean_cosine": 0.9344095587730408,
+          "final_step_last_layer_cosine": 0.9696540236473083,
+          "final_step_last_layer_gold_logprob": -43.28910827636719,
+          "final_step_last_layer_gold_rank": 151417.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -12.058113098144531,
+          "emergence_step": null,
+          "latent_reasoning_score": 0.0,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        }
+      }
+    },
+    "ja": {
+      "lang": "ja",
+      "lang_norm": "JA",
+      "mean_cosine_to_english": 0.7836378067731857,
+      "latent_reasoning_score": 0.3125,
+      "agents": {
+        "planner": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.7492848038673401,
+          "last_layer_mean_cosine": 0.7762336134910583,
+          "final_step_mean_cosine": 0.3009282648563385,
+          "final_step_last_layer_cosine": 0.6581602692604065,
+          "final_step_last_layer_gold_logprob": -14.686399459838867,
+          "final_step_last_layer_gold_rank": 107.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -8.26027774810791,
+          "emergence_step": 2,
+          "latent_reasoning_score": 0.5,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "critic": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.7329148054122925,
+          "last_layer_mean_cosine": 0.7415136694908142,
+          "final_step_mean_cosine": 0.20325584709644318,
+          "final_step_last_layer_cosine": 0.5390718579292297,
+          "final_step_last_layer_gold_logprob": -22.22525978088379,
+          "final_step_last_layer_gold_rank": 2141.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -10.418557167053223,
+          "emergence_step": 2,
+          "latent_reasoning_score": 0.5,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "refiner": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.7193087339401245,
+          "last_layer_mean_cosine": 0.6270396709442139,
+          "final_step_mean_cosine": 0.11405333876609802,
+          "final_step_last_layer_cosine": 0.045443594455718994,
+          "final_step_last_layer_gold_logprob": -15.257017135620117,
+          "final_step_last_layer_gold_rank": 60.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -10.257606506347656,
+          "emergence_step": 3,
+          "latent_reasoning_score": 0.25,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "judger": {
+          "shape": [
+            1,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.9330428838729858,
+          "last_layer_mean_cosine": 0.9729728698730469,
+          "final_step_mean_cosine": 0.9330428838729858,
+          "final_step_last_layer_cosine": 0.9729728698730469,
+          "final_step_last_layer_gold_logprob": -44.436737060546875,
+          "final_step_last_layer_gold_rank": 151446.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -11.846921920776367,
+          "emergence_step": null,
+          "latent_reasoning_score": 0.0,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        }
+      }
+    },
+    "ru": {
+      "lang": "ru",
+      "lang_norm": "RU",
+      "mean_cosine_to_english": 0.7393815964460373,
+      "latent_reasoning_score": 0.0625,
+      "agents": {
+        "planner": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.7071755528450012,
+          "last_layer_mean_cosine": 0.722297728061676,
+          "final_step_mean_cosine": 0.13318108022212982,
+          "final_step_last_layer_cosine": 0.4851028323173523,
+          "final_step_last_layer_gold_logprob": -18.54910659790039,
+          "final_step_last_layer_gold_rank": 307.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -10.990058898925781,
+          "emergence_step": 3,
+          "latent_reasoning_score": 0.25,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "critic": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.7367854714393616,
+          "last_layer_mean_cosine": 0.7591022849082947,
+          "final_step_mean_cosine": 0.12901553511619568,
+          "final_step_last_layer_cosine": 0.4378430247306824,
+          "final_step_last_layer_gold_logprob": -18.943864822387695,
+          "final_step_last_layer_gold_rank": 1304.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -12.131730079650879,
+          "emergence_step": null,
+          "latent_reasoning_score": 0.0,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "refiner": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.5789754390716553,
+          "last_layer_mean_cosine": 0.4806451201438904,
+          "final_step_mean_cosine": 0.06225578114390373,
+          "final_step_last_layer_cosine": 0.012991400435566902,
+          "final_step_last_layer_gold_logprob": -20.5654354095459,
+          "final_step_last_layer_gold_rank": 1915.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -11.862110137939453,
+          "emergence_step": null,
+          "latent_reasoning_score": 0.0,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "judger": {
+          "shape": [
+            1,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.9345899224281311,
+          "last_layer_mean_cosine": 0.974489688873291,
+          "final_step_mean_cosine": 0.9345899224281311,
+          "final_step_last_layer_cosine": 0.974489688873291,
+          "final_step_last_layer_gold_logprob": -41.4435920715332,
+          "final_step_last_layer_gold_rank": 151253.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -13.171316146850586,
+          "emergence_step": null,
+          "latent_reasoning_score": 0.0,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        }
+      }
+    },
+    "sw": {
+      "lang": "sw",
+      "lang_norm": "SW",
+      "mean_cosine_to_english": 0.7864326238632202,
+      "latent_reasoning_score": 0.4375,
+      "agents": {
+        "planner": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.7675039768218994,
+          "last_layer_mean_cosine": 0.7052910327911377,
+          "final_step_mean_cosine": 0.401774525642395,
+          "final_step_last_layer_cosine": 0.4597235918045044,
+          "final_step_last_layer_gold_logprob": -6.104206562042236,
+          "final_step_last_layer_gold_rank": 22.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -6.104206562042236,
+          "emergence_step": 2,
+          "latent_reasoning_score": 0.5,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "critic": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.788972795009613,
+          "last_layer_mean_cosine": 0.8027923107147217,
+          "final_step_mean_cosine": 0.4989392161369324,
+          "final_step_last_layer_cosine": 0.7861630916595459,
+          "final_step_last_layer_gold_logprob": -17.245874404907227,
+          "final_step_last_layer_gold_rank": 32.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -8.262687683105469,
+          "emergence_step": 1,
+          "latent_reasoning_score": 0.75,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "refiner": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.6745810508728027,
+          "last_layer_mean_cosine": 0.5414717793464661,
+          "final_step_mean_cosine": 0.10218449681997299,
+          "final_step_last_layer_cosine": -0.012338811531662941,
+          "final_step_last_layer_gold_logprob": -18.4547061920166,
+          "final_step_last_layer_gold_rank": 856.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -9.535676956176758,
+          "emergence_step": 2,
+          "latent_reasoning_score": 0.5,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "judger": {
+          "shape": [
+            1,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.9146726727485657,
+          "last_layer_mean_cosine": 0.9652864933013916,
+          "final_step_mean_cosine": 0.9146726727485657,
+          "final_step_last_layer_cosine": 0.9652864933013916,
+          "final_step_last_layer_gold_logprob": -45.68473434448242,
+          "final_step_last_layer_gold_rank": 151503.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -11.292372703552246,
+          "emergence_step": null,
+          "latent_reasoning_score": 0.0,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        }
+      }
+    },
+    "te": {
+      "lang": "te",
+      "lang_norm": "TE",
+      "mean_cosine_to_english": 0.7520322501659393,
+      "latent_reasoning_score": 0.125,
+      "agents": {
+        "planner": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.7118167281150818,
+          "last_layer_mean_cosine": 0.7050948143005371,
+          "final_step_mean_cosine": 0.14750200510025024,
+          "final_step_last_layer_cosine": 0.19965612888336182,
+          "final_step_last_layer_gold_logprob": -15.105116844177246,
+          "final_step_last_layer_gold_rank": 216.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -10.826396942138672,
+          "emergence_step": 2,
+          "latent_reasoning_score": 0.5,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "critic": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.7171897888183594,
+          "last_layer_mean_cosine": 0.7356937527656555,
+          "final_step_mean_cosine": 0.16403433680534363,
+          "final_step_last_layer_cosine": 0.42552465200424194,
+          "final_step_last_layer_gold_logprob": -26.4752140045166,
+          "final_step_last_layer_gold_rank": 12041.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -10.937172889709473,
+          "emergence_step": null,
+          "latent_reasoning_score": 0.0,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "refiner": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.6874743103981018,
+          "last_layer_mean_cosine": 0.6132669448852539,
+          "final_step_mean_cosine": 0.07430382072925568,
+          "final_step_last_layer_cosine": 0.0031961144413799047,
+          "final_step_last_layer_gold_logprob": -31.705232620239258,
+          "final_step_last_layer_gold_rank": 82066.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -12.124771118164062,
+          "emergence_step": null,
+          "latent_reasoning_score": 0.0,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "judger": {
+          "shape": [
+            1,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.8916481733322144,
+          "last_layer_mean_cosine": 0.9519245624542236,
+          "final_step_mean_cosine": 0.8916481733322144,
+          "final_step_last_layer_cosine": 0.9519245624542236,
+          "final_step_last_layer_gold_logprob": -44.143043518066406,
+          "final_step_last_layer_gold_rank": 151445.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -12.057378768920898,
+          "emergence_step": null,
+          "latent_reasoning_score": 0.0,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        }
+      }
+    },
+    "th": {
+      "lang": "th",
+      "lang_norm": "TH",
+      "mean_cosine_to_english": 0.7737757116556168,
+      "latent_reasoning_score": 0.1875,
+      "agents": {
+        "planner": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.7218696475028992,
+          "last_layer_mean_cosine": 0.7217161655426025,
+          "final_step_mean_cosine": 0.12351806461811066,
+          "final_step_last_layer_cosine": 0.3036388158798218,
+          "final_step_last_layer_gold_logprob": -7.586369514465332,
+          "final_step_last_layer_gold_rank": 167.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -7.586369514465332,
+          "emergence_step": 3,
+          "latent_reasoning_score": 0.25,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "critic": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.7114006280899048,
+          "last_layer_mean_cosine": 0.6637075543403625,
+          "final_step_mean_cosine": 0.09396632015705109,
+          "final_step_last_layer_cosine": 0.10872860997915268,
+          "final_step_last_layer_gold_logprob": -10.21587085723877,
+          "final_step_last_layer_gold_rank": 214.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -8.559167861938477,
+          "emergence_step": 3,
+          "latent_reasoning_score": 0.25,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "refiner": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.7357081174850464,
+          "last_layer_mean_cosine": 0.6689371466636658,
+          "final_step_mean_cosine": 0.1868031919002533,
+          "final_step_last_layer_cosine": 0.14830000698566437,
+          "final_step_last_layer_gold_logprob": -9.702073097229004,
+          "final_step_last_layer_gold_rank": 833.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -9.702073097229004,
+          "emergence_step": 3,
+          "latent_reasoning_score": 0.25,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "judger": {
+          "shape": [
+            1,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.9261244535446167,
+          "last_layer_mean_cosine": 0.9711994528770447,
+          "final_step_mean_cosine": 0.9261244535446167,
+          "final_step_last_layer_cosine": 0.9711994528770447,
+          "final_step_last_layer_gold_logprob": -43.41582489013672,
+          "final_step_last_layer_gold_rank": 151394.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -13.07392406463623,
+          "emergence_step": null,
+          "latent_reasoning_score": 0.0,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        }
+      }
+    },
+    "zh": {
+      "lang": "zh",
+      "lang_norm": "ZH",
+      "mean_cosine_to_english": 0.7650887444615364,
+      "latent_reasoning_score": 0.4375,
+      "agents": {
+        "planner": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.7648671269416809,
+          "last_layer_mean_cosine": 0.8353044986724854,
+          "final_step_mean_cosine": 0.2159038782119751,
+          "final_step_last_layer_cosine": 0.5082034468650818,
+          "final_step_last_layer_gold_logprob": -5.724713325500488,
+          "final_step_last_layer_gold_rank": 6.0,
+          "best_gold_rank": 6.0,
+          "best_gold_logprob": -5.724713325500488,
+          "emergence_step": 2,
+          "latent_reasoning_score": 0.5,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "critic": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.9059411883354187,
+          "last_layer_mean_cosine": 0.8844591975212097,
+          "final_step_mean_cosine": 0.8250519037246704,
+          "final_step_last_layer_cosine": 0.8172323107719421,
+          "final_step_last_layer_gold_logprob": -17.260141372680664,
+          "final_step_last_layer_gold_rank": 17.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -7.654331207275391,
+          "emergence_step": 1,
+          "latent_reasoning_score": 0.75,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "refiner": {
+          "shape": [
+            4,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.4513413608074188,
+          "last_layer_mean_cosine": 0.4589191973209381,
+          "final_step_mean_cosine": 0.11523088067770004,
+          "final_step_last_layer_cosine": 0.0455145388841629,
+          "final_step_last_layer_gold_logprob": -28.044282913208008,
+          "final_step_last_layer_gold_rank": 26.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -9.264318466186523,
+          "emergence_step": 2,
+          "latent_reasoning_score": 0.5,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        },
+        "judger": {
+          "shape": [
+            1,
+            37,
+            2560
+          ],
+          "mean_cosine": 0.9382053017616272,
+          "last_layer_mean_cosine": 0.9636526107788086,
+          "final_step_mean_cosine": 0.9382053017616272,
+          "final_step_last_layer_cosine": 0.9636526107788086,
+          "final_step_last_layer_gold_logprob": -42.582820892333984,
+          "final_step_last_layer_gold_rank": 151257.0,
+          "best_gold_rank": 8.0,
+          "best_gold_logprob": -12.711227416992188,
+          "emergence_step": null,
+          "latent_reasoning_score": 0.0,
+          "rank_threshold": 1000,
+          "emergence_layer_strategy": "final_layer"
+        }
+      }
+    }
+  }
+}

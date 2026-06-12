@@ -175,35 +175,46 @@ def collect_language_traces(
     }
 
 
-def latent_reasoning_emergence(logitlens: Dict, rank_threshold: int) -> Dict:
+def latent_reasoning_emergence(logitlens: Dict, rank_threshold: int, layer_strategy: str) -> Dict:
     ranks = logitlens["rank_gold_first"]
-    final_layer_ranks = ranks[:, -1]
-    emerged = np.where(final_layer_ranks <= rank_threshold)[0]
+    if layer_strategy == "final_layer":
+        step_ranks = ranks[:, -1]
+    elif layer_strategy == "best_layer":
+        # Skip embedding layer 0. Logit-lens projections from raw embeddings can
+        # look spuriously good and are not a meaningful reasoning layer.
+        layer_ranks = ranks[:, 1:] if ranks.shape[1] > 1 else ranks
+        step_ranks = layer_ranks.min(axis=1)
+    else:
+        raise ValueError(f"Unsupported layer_strategy: {layer_strategy}")
+
+    emerged = np.where(step_ranks <= rank_threshold)[0]
 
     if len(emerged) == 0:
         return {
             "emergence_step": None,
             "latent_reasoning_score": 0.0,
             "rank_threshold": rank_threshold,
+            "layer_strategy": layer_strategy,
         }
 
     emergence_step = int(emerged[0])
-    max_step = max(int(len(final_layer_ranks) - 1), 1)
-    score = 1.0 - (float(emergence_step) / float(max_step))
+    step_count = max(int(len(step_ranks)), 1)
+    score = 1.0 - (float(emergence_step) / float(step_count))
     return {
         "emergence_step": emergence_step,
         "latent_reasoning_score": float(score),
         "rank_threshold": rank_threshold,
+        "layer_strategy": layer_strategy,
     }
 
 
-def summarize_against_english(ref: Dict, tgt: Dict, rank_threshold: int) -> Dict:
+def summarize_against_english(ref: Dict, tgt: Dict, rank_threshold: int, layer_strategy: str) -> Dict:
     agent_summaries = {}
     for role, tgt_agent in tgt["agents"].items():
         ref_hidden = ref["agents"][role]["hidden"]
         tgt_hidden = tgt_agent["hidden"]
         sims = cosine_by_step_layer(ref_hidden, tgt_hidden)
-        emergence = latent_reasoning_emergence(tgt_agent["logitlens"], rank_threshold)
+        emergence = latent_reasoning_emergence(tgt_agent["logitlens"], rank_threshold, layer_strategy)
         agent_summaries[role] = {
             "shape": list(tgt_hidden.shape),
             "mean_cosine": float(sims.mean()),
@@ -247,6 +258,7 @@ def jsonable_summary(summary: Dict) -> Dict:
             "emergence_step": data["emergence"]["emergence_step"],
             "latent_reasoning_score": data["emergence"]["latent_reasoning_score"],
             "rank_threshold": data["emergence"]["rank_threshold"],
+            "emergence_layer_strategy": data["emergence"]["layer_strategy"],
         }
     return out
 
@@ -263,6 +275,12 @@ def main():
     parser.add_argument("--device2", type=str, default="cuda:1")
     parser.add_argument("--latent_space_realign", action="store_true")
     parser.add_argument("--emergence_rank_threshold", type=int, default=10)
+    parser.add_argument(
+        "--emergence_layer_strategy",
+        choices=["best_layer", "final_layer"],
+        default="best_layer",
+        help="Use the best logit-lens layer per latent step, or only the final layer.",
+    )
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--out_dir", type=str, default="multilingual-latent-reasoning/results_latent_mas_agents")
     args = parser.parse_args()
@@ -284,7 +302,12 @@ def main():
     ref = traces[args.ref_lang.lower()]
     summaries = {}
     for lang, trace in traces.items():
-        summaries[lang] = summarize_against_english(ref, trace, args.emergence_rank_threshold)
+        summaries[lang] = summarize_against_english(
+            ref,
+            trace,
+            args.emergence_rank_threshold,
+            args.emergence_layer_strategy,
+        )
 
     out_dir = Path(args.out_dir) / args.model_name.split("/")[-1] / f"mgsm_first_{args.prompt}"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -320,6 +343,7 @@ def main():
                 "If the gold token never emerges, that agent score is 0."
             ),
             "emergence_rank_threshold": args.emergence_rank_threshold,
+            "emergence_layer_strategy": args.emergence_layer_strategy,
         },
         "summaries": {lang: jsonable_summary(summary) for lang, summary in summaries.items()},
     }
