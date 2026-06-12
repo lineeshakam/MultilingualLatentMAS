@@ -4,13 +4,45 @@
 - **run baseline** `python run.py --method baseline --model_name ./models/qwen3-4b --task gsm8k --max_samples 1 --generate_bs 1 --device mps`
 - **run latentMAS** `python run.py --method latent_mas --model_name ./models/qwen3-4b --task gsm8k  --max_samples 1 --generate_bs 1 --device mps --prompt sequential`
 
-- **test on mgsm** `langs=(bn de en es fr ja ru sw te th zh) #you can choose your language you want to run in, this just generates a sample q for all of them
+- **test on mgsm** `langs=(bn de en es fr ja ru sw te th zh) #you can choose your language you want to run in, this just generates a sample q **Baseline:**
+```
 for L in "${langs[@]}"; do
   echo "=== $L ==="
   python run.py --method baseline --model_name Qwen/Qwen3-4B \
     --task mgsm --mgsm_lang $L --max_samples 1 --generate_bs 1 --device mps ##this is for my mac, with another device probably look into torch cuda or cpu`
 
+```
+**Explicit Multiagent Communication**
 
+```
+langs=(bn de en es fr ja ru sw te th zh)
+for L in "${langs[@]}"; do
+  echo "=== $L ==="
+  python run.py --method text_mas --model_name Qwen/Qwen3-4B \
+    --task mgsm --mgsm_lang $L --max_samples 1 --generate_bs 1 --device mps
+```
+
+
+**Latent Multiagent Communication**
+```
+langs=(bn de en es fr ja ru sw te th zh)
+for L in "${langs[@]}"; do
+  echo "=== $L ==="
+  python run.py --method latent_mas --model_name Qwen/Qwen3-4B \
+    --task mgsm --mgsm_lang $L --max_samples 1 --generate_bs 1 --device mps
+```
+
+
+- how to observe **latent space**
+```
+python multilingual-latent-reasoning/run_latent_mas_agent_similarity.py \
+  --model_name Qwen/Qwen3-4B \
+  --languages bn,de,en,es,fr,ja,ru,sw,te,th,zh \
+  --ref_lang en \
+  --prompt sequential \
+  --latent_steps 3 \
+  --device mps
+```
 
 
 
