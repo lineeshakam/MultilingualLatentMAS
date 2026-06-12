@@ -175,12 +175,35 @@ def collect_language_traces(
     }
 
 
-def summarize_against_english(ref: Dict, tgt: Dict) -> Dict:
+def latent_reasoning_emergence(logitlens: Dict, rank_threshold: int) -> Dict:
+    ranks = logitlens["rank_gold_first"]
+    final_layer_ranks = ranks[:, -1]
+    emerged = np.where(final_layer_ranks <= rank_threshold)[0]
+
+    if len(emerged) == 0:
+        return {
+            "emergence_step": None,
+            "latent_reasoning_score": 0.0,
+            "rank_threshold": rank_threshold,
+        }
+
+    emergence_step = int(emerged[0])
+    max_step = max(int(len(final_layer_ranks) - 1), 1)
+    score = 1.0 - (float(emergence_step) / float(max_step))
+    return {
+        "emergence_step": emergence_step,
+        "latent_reasoning_score": float(score),
+        "rank_threshold": rank_threshold,
+    }
+
+
+def summarize_against_english(ref: Dict, tgt: Dict, rank_threshold: int) -> Dict:
     agent_summaries = {}
     for role, tgt_agent in tgt["agents"].items():
         ref_hidden = ref["agents"][role]["hidden"]
         tgt_hidden = tgt_agent["hidden"]
         sims = cosine_by_step_layer(ref_hidden, tgt_hidden)
+        emergence = latent_reasoning_emergence(tgt_agent["logitlens"], rank_threshold)
         agent_summaries[role] = {
             "shape": list(tgt_hidden.shape),
             "mean_cosine": float(sims.mean()),
@@ -189,12 +212,15 @@ def summarize_against_english(ref: Dict, tgt: Dict) -> Dict:
             "final_step_last_layer_cosine": float(sims[-1, -1]),
             "cosine_by_step_layer": sims,
             "logitlens": tgt_agent["logitlens"],
+            "emergence": emergence,
         }
-    values = [v["mean_cosine"] for v in agent_summaries.values()]
+    cosine_values = [v["mean_cosine"] for v in agent_summaries.values()]
+    reasoning_values = [v["emergence"]["latent_reasoning_score"] for v in agent_summaries.values()]
     return {
         "lang": tgt["lang"],
         "lang_norm": tgt["lang_norm"],
-        "latent_reasoning_score": float(np.mean(values)),
+        "mean_cosine_to_english": float(np.mean(cosine_values)),
+        "latent_reasoning_score": float(np.mean(reasoning_values)),
         "agents": agent_summaries,
     }
 
@@ -203,6 +229,7 @@ def jsonable_summary(summary: Dict) -> Dict:
     out = {
         "lang": summary["lang"],
         "lang_norm": summary["lang_norm"],
+        "mean_cosine_to_english": summary["mean_cosine_to_english"],
         "latent_reasoning_score": summary["latent_reasoning_score"],
         "agents": {},
     }
@@ -217,6 +244,9 @@ def jsonable_summary(summary: Dict) -> Dict:
             "final_step_last_layer_gold_rank": float(data["logitlens"]["rank_gold_first"][-1, -1]),
             "best_gold_rank": float(data["logitlens"]["rank_gold_first"].min()),
             "best_gold_logprob": float(data["logitlens"]["logprob_gold_first"].max()),
+            "emergence_step": data["emergence"]["emergence_step"],
+            "latent_reasoning_score": data["emergence"]["latent_reasoning_score"],
+            "rank_threshold": data["emergence"]["rank_threshold"],
         }
     return out
 
@@ -232,6 +262,7 @@ def main():
     parser.add_argument("--device", type=str, default="cuda")
     parser.add_argument("--device2", type=str, default="cuda:1")
     parser.add_argument("--latent_space_realign", action="store_true")
+    parser.add_argument("--emergence_rank_threshold", type=int, default=10)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--out_dir", type=str, default="multilingual-latent-reasoning/results_latent_mas_agents")
     args = parser.parse_args()
@@ -253,7 +284,7 @@ def main():
     ref = traces[args.ref_lang.lower()]
     summaries = {}
     for lang, trace in traces.items():
-        summaries[lang] = summarize_against_english(ref, trace)
+        summaries[lang] = summarize_against_english(ref, trace, args.emergence_rank_threshold)
 
     out_dir = Path(args.out_dir) / args.model_name.split("/")[-1] / f"mgsm_first_{args.prompt}"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -282,7 +313,13 @@ def main():
             "latent_steps": args.latent_steps,
             "ref_lang": args.ref_lang.lower(),
             "languages": langs,
-            "score_definition": "mean cosine similarity to English across agents, latent steps, and layers",
+            "cosine_definition": "mean cosine similarity to English across agents, latent steps, and layers",
+            "latent_reasoning_score_definition": (
+                "Mean across agents of 1 - emergence_step / max_step, where emergence_step is the first "
+                "latent step whose final-layer gold first-token rank is <= emergence_rank_threshold. "
+                "If the gold token never emerges, that agent score is 0."
+            ),
+            "emergence_rank_threshold": args.emergence_rank_threshold,
         },
         "summaries": {lang: jsonable_summary(summary) for lang, summary in summaries.items()},
     }
@@ -290,7 +327,12 @@ def main():
         json.dump(json_summary, f, ensure_ascii=False, indent=2)
 
     for lang in langs:
-        print(lang, json_summary["summaries"][lang]["latent_reasoning_score"])
+        row = json_summary["summaries"][lang]
+        print(
+            lang,
+            "latent_reasoning_score=", row["latent_reasoning_score"],
+            "mean_cosine_to_english=", row["mean_cosine_to_english"],
+        )
     print(f"[OK] wrote {out_dir}")
 
 
