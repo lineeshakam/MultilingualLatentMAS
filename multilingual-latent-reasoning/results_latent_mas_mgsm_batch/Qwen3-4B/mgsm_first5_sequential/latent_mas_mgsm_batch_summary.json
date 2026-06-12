@@ -1,0 +1,668 @@
+{
+  "meta": {
+    "model": "Qwen/Qwen3-4B",
+    "languages": [
+      "bn",
+      "de",
+      "en",
+      "es",
+      "fr",
+      "ja",
+      "ru",
+      "sw",
+      "te",
+      "th",
+      "zh"
+    ],
+    "prompt": "sequential",
+    "latent_steps": 3,
+    "max_examples": 5,
+    "emergence_rank_threshold": 1000,
+    "emergence_layer_strategy": "final_layer",
+    "cosine_definition": "Average across common example indices, agents, latent steps, and layers."
+  },
+  "languages": [
+    "bn",
+    "de",
+    "en",
+    "es",
+    "fr",
+    "ja",
+    "ru",
+    "sw",
+    "te",
+    "th",
+    "zh"
+  ],
+  "language_summary": {
+    "bn": {
+      "accuracy": 0.2,
+      "correct": 1,
+      "total": 5,
+      "latent_reasoning_score": 0.3375,
+      "agent_latent_reasoning_score": {
+        "planner": 0.25,
+        "critic": 0.1,
+        "refiner": 0.0,
+        "judger": 1.0
+      },
+      "per_problem": [
+        {
+          "idx": 0,
+          "correct": false,
+          "prediction": "5",
+          "gold": "18"
+        },
+        {
+          "idx": 1,
+          "correct": true,
+          "prediction": "3",
+          "gold": "3"
+        },
+        {
+          "idx": 2,
+          "correct": false,
+          "prediction": "000",
+          "gold": "70000"
+        },
+        {
+          "idx": 3,
+          "correct": false,
+          "prediction": "180",
+          "gold": "540"
+        },
+        {
+          "idx": 4,
+          "correct": false,
+          "prediction": "25",
+          "gold": "20"
+        }
+      ]
+    },
+    "de": {
+      "accuracy": 1.0,
+      "correct": 5,
+      "total": 5,
+      "latent_reasoning_score": 0.35,
+      "agent_latent_reasoning_score": {
+        "planner": 0.5,
+        "critic": 0.35,
+        "refiner": 0.15,
+        "judger": 0.4
+      },
+      "per_problem": [
+        {
+          "idx": 0,
+          "correct": true,
+          "prediction": "18",
+          "gold": "18"
+        },
+        {
+          "idx": 1,
+          "correct": true,
+          "prediction": "3",
+          "gold": "3"
+        },
+        {
+          "idx": 2,
+          "correct": true,
+          "prediction": "70000",
+          "gold": "70000"
+        },
+        {
+          "idx": 3,
+          "correct": true,
+          "prediction": "540",
+          "gold": "540"
+        },
+        {
+          "idx": 4,
+          "correct": true,
+          "prediction": "20",
+          "gold": "20"
+        }
+      ]
+    },
+    "en": {
+      "accuracy": 1.0,
+      "correct": 5,
+      "total": 5,
+      "latent_reasoning_score": 0.35,
+      "agent_latent_reasoning_score": {
+        "planner": 0.5,
+        "critic": 0.4,
+        "refiner": 0.3,
+        "judger": 0.2
+      },
+      "per_problem": [
+        {
+          "idx": 0,
+          "correct": true,
+          "prediction": "18",
+          "gold": "18"
+        },
+        {
+          "idx": 1,
+          "correct": true,
+          "prediction": "3",
+          "gold": "3"
+        },
+        {
+          "idx": 2,
+          "correct": true,
+          "prediction": "70000",
+          "gold": "70000"
+        },
+        {
+          "idx": 3,
+          "correct": true,
+          "prediction": "540",
+          "gold": "540"
+        },
+        {
+          "idx": 4,
+          "correct": true,
+          "prediction": "20",
+          "gold": "20"
+        }
+      ]
+    },
+    "es": {
+      "accuracy": 0.8,
+      "correct": 4,
+      "total": 5,
+      "latent_reasoning_score": 0.5375000000000001,
+      "agent_latent_reasoning_score": {
+        "planner": 0.45,
+        "critic": 0.4,
+        "refiner": 0.3,
+        "judger": 1.0
+      },
+      "per_problem": [
+        {
+          "idx": 0,
+          "correct": true,
+          "prediction": "18",
+          "gold": "18"
+        },
+        {
+          "idx": 1,
+          "correct": true,
+          "prediction": "3",
+          "gold": "3"
+        },
+        {
+          "idx": 2,
+          "correct": true,
+          "prediction": "70000",
+          "gold": "70000"
+        },
+        {
+          "idx": 3,
+          "correct": false,
+          "prediction": "180",
+          "gold": "540"
+        },
+        {
+          "idx": 4,
+          "correct": true,
+          "prediction": "20",
+          "gold": "20"
+        }
+      ]
+    },
+    "fr": {
+      "accuracy": 0.4,
+      "correct": 2,
+      "total": 5,
+      "latent_reasoning_score": 0.525,
+      "agent_latent_reasoning_score": {
+        "planner": 0.4,
+        "critic": 0.4,
+        "refiner": 0.5,
+        "judger": 0.8
+      },
+      "per_problem": [
+        {
+          "idx": 0,
+          "correct": false,
+          "prediction": "24",
+          "gold": "18"
+        },
+        {
+          "idx": 1,
+          "correct": true,
+          "prediction": "3",
+          "gold": "3"
+        },
+        {
+          "idx": 2,
+          "correct": false,
+          "prediction": "130000",
+          "gold": "70000"
+        },
+        {
+          "idx": 3,
+          "correct": true,
+          "prediction": "540",
+          "gold": "540"
+        },
+        {
+          "idx": 4,
+          "correct": false,
+          "prediction": "3",
+          "gold": "20"
+        }
+      ]
+    },
+    "ja": {
+      "accuracy": 0.8,
+      "correct": 4,
+      "total": 5,
+      "latent_reasoning_score": 0.575,
+      "agent_latent_reasoning_score": {
+        "planner": 0.5,
+        "critic": 0.4,
+        "refiner": 0.4,
+        "judger": 1.0
+      },
+      "per_problem": [
+        {
+          "idx": 0,
+          "correct": true,
+          "prediction": "18",
+          "gold": "18"
+        },
+        {
+          "idx": 1,
+          "correct": true,
+          "prediction": "3",
+          "gold": "3"
+        },
+        {
+          "idx": 2,
+          "correct": false,
+          "prediction": "-1",
+          "gold": "70000"
+        },
+        {
+          "idx": 3,
+          "correct": true,
+          "prediction": "540",
+          "gold": "540"
+        },
+        {
+          "idx": 4,
+          "correct": true,
+          "prediction": "20",
+          "gold": "20"
+        }
+      ]
+    },
+    "ru": {
+      "accuracy": 0.8,
+      "correct": 4,
+      "total": 5,
+      "latent_reasoning_score": 0.35,
+      "agent_latent_reasoning_score": {
+        "planner": 0.45,
+        "critic": 0.3,
+        "refiner": 0.05,
+        "judger": 0.6
+      },
+      "per_problem": [
+        {
+          "idx": 0,
+          "correct": true,
+          "prediction": "18",
+          "gold": "18"
+        },
+        {
+          "idx": 1,
+          "correct": true,
+          "prediction": "3",
+          "gold": "3"
+        },
+        {
+          "idx": 2,
+          "correct": true,
+          "prediction": "70000",
+          "gold": "70000"
+        },
+        {
+          "idx": 3,
+          "correct": true,
+          "prediction": "540",
+          "gold": "540"
+        },
+        {
+          "idx": 4,
+          "correct": false,
+          "prediction": "5",
+          "gold": "20"
+        }
+      ]
+    },
+    "sw": {
+      "accuracy": 0.2,
+      "correct": 1,
+      "total": 5,
+      "latent_reasoning_score": 0.5875,
+      "agent_latent_reasoning_score": {
+        "planner": 0.4,
+        "critic": 0.45,
+        "refiner": 0.5,
+        "judger": 1.0
+      },
+      "per_problem": [
+        {
+          "idx": 0,
+          "correct": false,
+          "prediction": "32",
+          "gold": "18"
+        },
+        {
+          "idx": 1,
+          "correct": false,
+          "prediction": "5",
+          "gold": "3"
+        },
+        {
+          "idx": 2,
+          "correct": false,
+          "prediction": "40000",
+          "gold": "70000"
+        },
+        {
+          "idx": 3,
+          "correct": true,
+          "prediction": "540",
+          "gold": "540"
+        },
+        {
+          "idx": 4,
+          "correct": false,
+          "prediction": "4",
+          "gold": "20"
+        }
+      ]
+    },
+    "te": {
+      "accuracy": 0.4,
+      "correct": 2,
+      "total": 5,
+      "latent_reasoning_score": 0.4125,
+      "agent_latent_reasoning_score": {
+        "planner": 0.45,
+        "critic": 0.1,
+        "refiner": 0.1,
+        "judger": 1.0
+      },
+      "per_problem": [
+        {
+          "idx": 0,
+          "correct": false,
+          "prediction": "16",
+          "gold": "18"
+        },
+        {
+          "idx": 1,
+          "correct": true,
+          "prediction": "3",
+          "gold": "3"
+        },
+        {
+          "idx": 2,
+          "correct": false,
+          "prediction": "5",
+          "gold": "70000"
+        },
+        {
+          "idx": 3,
+          "correct": true,
+          "prediction": "540",
+          "gold": "540"
+        },
+        {
+          "idx": 4,
+          "correct": false,
+          "prediction": "5",
+          "gold": "20"
+        }
+      ]
+    },
+    "th": {
+      "accuracy": 0.6,
+      "correct": 3,
+      "total": 5,
+      "latent_reasoning_score": 0.3875,
+      "agent_latent_reasoning_score": {
+        "planner": 0.35,
+        "critic": 0.25,
+        "refiner": 0.15,
+        "judger": 0.8
+      },
+      "per_problem": [
+        {
+          "idx": 0,
+          "correct": true,
+          "prediction": "18",
+          "gold": "18"
+        },
+        {
+          "idx": 1,
+          "correct": true,
+          "prediction": "3",
+          "gold": "3"
+        },
+        {
+          "idx": 2,
+          "correct": true,
+          "prediction": "70000",
+          "gold": "70000"
+        },
+        {
+          "idx": 3,
+          "correct": false,
+          "prediction": "1260",
+          "gold": "540"
+        },
+        {
+          "idx": 4,
+          "correct": false,
+          "prediction": "0",
+          "gold": "20"
+        }
+      ]
+    },
+    "zh": {
+      "accuracy": 1.0,
+      "correct": 5,
+      "total": 5,
+      "latent_reasoning_score": 0.5875,
+      "agent_latent_reasoning_score": {
+        "planner": 0.5,
+        "critic": 0.5,
+        "refiner": 0.35,
+        "judger": 1.0
+      },
+      "per_problem": [
+        {
+          "idx": 0,
+          "correct": true,
+          "prediction": "18",
+          "gold": "18"
+        },
+        {
+          "idx": 1,
+          "correct": true,
+          "prediction": "3",
+          "gold": "3"
+        },
+        {
+          "idx": 2,
+          "correct": true,
+          "prediction": "70000",
+          "gold": "70000"
+        },
+        {
+          "idx": 3,
+          "correct": true,
+          "prediction": "540",
+          "gold": "540"
+        },
+        {
+          "idx": 4,
+          "correct": true,
+          "prediction": "20",
+          "gold": "20"
+        }
+      ]
+    }
+  },
+  "cosine_similarity_matrix": {
+    "bn": {
+      "bn": 1.0,
+      "de": 0.7581552892923356,
+      "en": 0.7191706240177155,
+      "es": 0.7408428311347961,
+      "fr": 0.7543459117412568,
+      "ja": 0.7787056565284729,
+      "ru": 0.7770762920379639,
+      "sw": 0.7423466920852662,
+      "te": 0.8047853410243988,
+      "th": 0.8635889947414398,
+      "zh": 0.7046601861715317
+    },
+    "de": {
+      "bn": 0.7581552892923356,
+      "de": 1.0,
+      "en": 0.8355410784482956,
+      "es": 0.8753282487392425,
+      "fr": 0.870148029923439,
+      "ja": 0.767159640789032,
+      "ru": 0.7334757804870605,
+      "sw": 0.8062496811151505,
+      "te": 0.8059076815843582,
+      "th": 0.731094142794609,
+      "zh": 0.7490954220294952
+    },
+    "en": {
+      "bn": 0.7191706240177155,
+      "de": 0.8355410784482956,
+      "en": 1.0,
+      "es": 0.8281417936086655,
+      "fr": 0.8377839177846909,
+      "ja": 0.743596363067627,
+      "ru": 0.7279458820819855,
+      "sw": 0.7642597287893296,
+      "te": 0.7524144381284714,
+      "th": 0.7219807595014572,
+      "zh": 0.7723111435770988
+    },
+    "es": {
+      "bn": 0.7408428311347961,
+      "de": 0.8753282487392425,
+      "en": 0.8281417936086655,
+      "es": 1.0,
+      "fr": 0.8930082112550736,
+      "ja": 0.7599703937768936,
+      "ru": 0.7371805816888809,
+      "sw": 0.8109623849391937,
+      "te": 0.7931050211191177,
+      "th": 0.7237334966659545,
+      "zh": 0.7469182908535004
+    },
+    "fr": {
+      "bn": 0.7543459117412568,
+      "de": 0.870148029923439,
+      "en": 0.8377839177846909,
+      "es": 0.8930082112550736,
+      "fr": 1.0,
+      "ja": 0.7880765795707703,
+      "ru": 0.7375079870224,
+      "sw": 0.8317583560943603,
+      "te": 0.8163024961948395,
+      "th": 0.7367265731096267,
+      "zh": 0.7627568557858467
+    },
+    "ja": {
+      "bn": 0.7787056565284729,
+      "de": 0.767159640789032,
+      "en": 0.743596363067627,
+      "es": 0.7599703937768936,
+      "fr": 0.7880765795707703,
+      "ja": 1.0,
+      "ru": 0.6849602550268173,
+      "sw": 0.7271345943212509,
+      "te": 0.7792021602392196,
+      "th": 0.7621562778949738,
+      "zh": 0.7370185792446137
+    },
+    "ru": {
+      "bn": 0.7770762920379639,
+      "de": 0.7334757804870605,
+      "en": 0.7279458820819855,
+      "es": 0.7371805816888809,
+      "fr": 0.7375079870224,
+      "ja": 0.6849602550268173,
+      "ru": 1.0,
+      "sw": 0.692395207285881,
+      "te": 0.7179576873779296,
+      "th": 0.7822116374969482,
+      "zh": 0.7134311825037003
+    },
+    "sw": {
+      "bn": 0.7423466920852662,
+      "de": 0.8062496811151505,
+      "en": 0.7642597287893296,
+      "es": 0.8109623849391937,
+      "fr": 0.8317583560943603,
+      "ja": 0.7271345943212509,
+      "ru": 0.692395207285881,
+      "sw": 1.0,
+      "te": 0.7947426974773407,
+      "th": 0.7164210766553879,
+      "zh": 0.7041874349117279
+    },
+    "te": {
+      "bn": 0.8047853410243988,
+      "de": 0.8059076815843582,
+      "en": 0.7524144381284714,
+      "es": 0.7931050211191177,
+      "fr": 0.8163024961948395,
+      "ja": 0.7792021602392196,
+      "ru": 0.7179576873779296,
+      "sw": 0.7947426974773407,
+      "te": 1.0,
+      "th": 0.7360689103603363,
+      "zh": 0.7157749503850936
+    },
+    "th": {
+      "bn": 0.8635889947414398,
+      "de": 0.731094142794609,
+      "en": 0.7219807595014572,
+      "es": 0.7237334966659545,
+      "fr": 0.7367265731096267,
+      "ja": 0.7621562778949738,
+      "ru": 0.7822116374969482,
+      "sw": 0.7164210766553879,
+      "te": 0.7360689103603363,
+      "th": 1.0,
+      "zh": 0.7001854434609414
+    },
+    "zh": {
+      "bn": 0.7046601861715317,
+      "de": 0.7490954220294952,
+      "en": 0.7723111435770988,
+      "es": 0.7469182908535004,
+      "fr": 0.7627568557858467,
+      "ja": 0.7370185792446137,
+      "ru": 0.7134311825037003,
+      "sw": 0.7041874349117279,
+      "te": 0.7157749503850936,
+      "th": 0.7001854434609414,
+      "zh": 1.0
+    }
+  }
+}
