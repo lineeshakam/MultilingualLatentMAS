@@ -4,6 +4,7 @@ set -euo pipefail
 MODEL="${MODEL:-Qwen/Qwen3-4B}"
 LANGUAGES="${LANGUAGES:-bn,de,en,es,fr,ja,ru,sw,te,th,zh}"
 DEVICE="${DEVICE:-auto}"
+PROMPT_LANGUAGE_MODE="${PROMPT_LANGUAGE_MODE:-target}"
 MAX_SAMPLES="${MAX_SAMPLES:--1}"
 MAX_NEW_TOKENS="${MAX_NEW_TOKENS:-512}"
 GENERATE_BS="${GENERATE_BS:-20}"
@@ -25,6 +26,7 @@ echo "================ MGSM single-agent baseline ================"
 echo "  model      : ${MODEL}"
 echo "  languages  : ${LANGUAGES}"
 echo "  device     : ${DEVICE}"
+echo "  prompt lang: ${PROMPT_LANGUAGE_MODE}"
 echo "  max samples: ${MAX_SAMPLES}"
 echo "  max tokens : ${MAX_NEW_TOKENS}"
 echo "  batch size : ${GENERATE_BS}"
@@ -48,6 +50,7 @@ for L in "${LANG_ARRAY[@]}"; do
     --model_name "${MODEL}" \
     --task mgsm \
     --mgsm_lang "${L}" \
+    --prompt_language_mode "${PROMPT_LANGUAGE_MODE}" \
     --split test \
     --device "${DEVICE}" \
     --max_samples "${MAX_SAMPLES}" \

@@ -14,6 +14,7 @@ set -euo pipefail
 MODEL_NAME="${MODEL_NAME:-Qwen/Qwen3-4B}"
 LANGUAGES="${LANGUAGES:-bn,de,en,es,fr,ja,ru,sw,te,th,zh}"
 PROMPT="${PROMPT:-sequential}"
+PROMPT_LANGUAGE_MODE="${PROMPT_LANGUAGE_MODE:-target}"
 LATENT_STEPS="${LATENT_STEPS:-3}"
 MAX_EXAMPLES="${MAX_EXAMPLES:--1}"
 MAX_NEW_TOKENS="${MAX_NEW_TOKENS:-512}"
@@ -25,6 +26,7 @@ SEED="${SEED:-42}"
 EMERGENCE_RANK_THRESHOLD="${EMERGENCE_RANK_THRESHOLD:-1000}"
 EMERGENCE_LAYER_STRATEGY="${EMERGENCE_LAYER_STRATEGY:-final_layer}"
 LANGUAGE_REASONING_DISENTANGLE="${LANGUAGE_REASONING_DISENTANGLE:-0}"
+LATENT_SPACE_REALIGN="${LATENT_SPACE_REALIGN:-0}"
 LR_VECTOR_PATH="${LR_VECTOR_PATH:-}"
 LR_DISENTANGLE_STRENGTH="${LR_DISENTANGLE_STRENGTH:-0.2}"
 LR_DISENTANGLE_VECTOR_LAYER="${LR_DISENTANGLE_VECTOR_LAYER:--1}"
@@ -41,11 +43,15 @@ if [[ "${LANGUAGE_REASONING_DISENTANGLE}" == "1" || "${LANGUAGE_REASONING_DISENT
   EXTRA_ARGS+=(--lr_disentangle_vector_layer "${LR_DISENTANGLE_VECTOR_LAYER}")
   EXTRA_ARGS+=(--lr_disentangle_roles "${LR_DISENTANGLE_ROLES}")
 fi
+if [[ "${LATENT_SPACE_REALIGN}" == "1" || "${LATENT_SPACE_REALIGN}" == "true" ]]; then
+  EXTRA_ARGS+=(--latent_space_realign)
+fi
 
 echo "================ Full MGSM LatentMAS CSV run ================"
 echo "  model      : ${MODEL_NAME}"
 echo "  languages  : ${LANGUAGES}"
 echo "  prompt     : ${PROMPT}"
+echo "  prompt lang: ${PROMPT_LANGUAGE_MODE}"
 echo "  device     : ${DEVICE}"
 echo "  latent     : ${LATENT_STEPS}"
 echo "  max examples: ${MAX_EXAMPLES}"
@@ -54,6 +60,7 @@ echo "  run_name   : ${RUN_NAME}"
 echo "  out_dir    : ${OUT_DIR}"
 echo "  checkpoint : every ${CHECKPOINT_EVERY} example(s)"
 echo "  LR disent. : ${LANGUAGE_REASONING_DISENTANGLE}"
+echo "  realign    : ${LATENT_SPACE_REALIGN}"
 if [[ "${LANGUAGE_REASONING_DISENTANGLE}" == "1" || "${LANGUAGE_REASONING_DISENTANGLE}" == "true" ]]; then
   echo "  LR vector  : ${LR_VECTOR_PATH}"
   echo "  LR strength: ${LR_DISENTANGLE_STRENGTH}"
@@ -65,6 +72,7 @@ python src/multilingual-latent-reasoning/run_latent_mas_mgsm_batch_analysis.py \
   --model_name "${MODEL_NAME}" \
   --languages "${LANGUAGES}" \
   --prompt "${PROMPT}" \
+  --prompt_language_mode "${PROMPT_LANGUAGE_MODE}" \
   --latent_steps "${LATENT_STEPS}" \
   --max_examples "${MAX_EXAMPLES}" \
   --device "${DEVICE}" \

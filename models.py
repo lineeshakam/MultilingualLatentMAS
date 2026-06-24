@@ -475,17 +475,19 @@ class ModelWrapper:
         # (it's used by vLLM). Only pass supported kwargs; we already
         # adjusted `attention_mask` when `past_key_values` is provided so
         # generation aligns correctly.
+        do_sample = temperature > 0
         gen_kwargs = dict(
             input_ids=input_ids,
             attention_mask=attention_mask,
             max_new_tokens=max_new_tokens,
-            temperature=temperature,
-            top_p=top_p,
-            do_sample=True,
+            do_sample=do_sample,
             pad_token_id=self.tokenizer.pad_token_id,
             return_dict_in_generate=True,
             output_scores=False,
         )
+        if do_sample:
+            gen_kwargs["temperature"] = temperature
+            gen_kwargs["top_p"] = top_p
         if past_key_values is not None:
             gen_kwargs["past_key_values"] = past_key_values
 

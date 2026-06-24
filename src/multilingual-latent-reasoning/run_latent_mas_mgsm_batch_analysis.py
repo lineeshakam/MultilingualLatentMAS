@@ -63,6 +63,7 @@ def build_args(args: argparse.Namespace, lang: str) -> SimpleNamespace:
         task="mgsm",
         mgsm_lang=lang,
         prompt=args.prompt,
+        prompt_language_mode=args.prompt_language_mode,
         text_mas_context_length=-1,
         think=False,
         latent_space_realign=args.latent_space_realign,
@@ -540,6 +541,12 @@ def main():
     parser.add_argument("--model_name", type=str, default="Qwen/Qwen3-4B")
     parser.add_argument("--languages", type=str, default="bn,de,en,es,fr,ja,ru,sw,te,th,zh")
     parser.add_argument("--prompt", choices=["sequential", "hierarchical"], default="sequential")
+    parser.add_argument(
+        "--prompt_language_mode",
+        choices=["target", "english"],
+        default="target",
+        help="Use target-language prompts/directives, or English-control prompts while keeping the MGSM question language.",
+    )
     parser.add_argument("--latent_steps", type=int, default=3)
     parser.add_argument("--max_examples", type=int, default=5, help="Examples per language. Use -1 for all MGSM test examples.")
     parser.add_argument("--max_new_tokens", type=int, default=512)

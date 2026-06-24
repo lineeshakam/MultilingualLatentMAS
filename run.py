@@ -104,6 +104,12 @@ def main():
                         help="Dataset/task to evaluate. Controls which loader is used.")
     parser.add_argument("--mgsm_lang", type=str, default="en", help="Language code to use for mgsm task (e.g. 'en','bn').")
     parser.add_argument("--prompt", type=str, choices=["sequential", "hierarchical"], default="sequential", help="Multi-agent system architecture: 'sequential' or 'hierarchical'.")
+    parser.add_argument(
+        "--prompt_language_mode",
+        choices=["target", "english"],
+        default="target",
+        help="Use target-language prompts/directives, or English-control prompts while keeping the MGSM question language.",
+    )
 
     # other args
     parser.add_argument("--device", type=str, default="cuda")
