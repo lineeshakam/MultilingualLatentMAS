@@ -59,23 +59,29 @@ def _get_lang_from_args(args):
 
 
 def _get_prompt_lang_from_args(args):
-    if getattr(args, "prompt_language_mode", "target") == "english":
+    if getattr(args, "prompt_language_mode", "target") in {"english", "neutral"}:
         return "en"
     return _get_lang_from_args(args)
 
 
 def get_assistant_think_prefill(args) -> str:
+    if getattr(args, "prompt_language_mode", "target") == "neutral":
+        return ""
     return _THINK_PREFILLS.get(_get_prompt_lang_from_args(args), "")
 
 
-def _with_language_directive(content: str, lang: str) -> str:
+def _with_language_directive(content: str, lang: str, args=None) -> str:
+    if getattr(args, "prompt_language_mode", "target") == "neutral":
+        return content
     directive = _LANGUAGE_DIRECTIVES.get(lang)
     if not directive or directive in content:
         return content
     return f"{content.rstrip()}\n\n{directive}"
 
 
-def _fetch_translation(section: str, role: str, task: str, lang: str):
+def _fetch_translation(section: str, role: str, task: str, lang: str, args=None):
+    if getattr(args, "prompt_language_mode", "target") == "neutral":
+        return None
     try:
         lang_map = _TRANSLATIONS.get(lang, {})
         sec = lang_map.get(section, {})
@@ -104,9 +110,9 @@ def build_agent_message_sequential_latent_mas(role: str, question: str, context:
     system_message = _TRANSLATIONS.get(lang, {}).get("system_message", "You are Qwen, created by Alibaba Cloud. You are a helpful assistant.")
 
     # If a full translation template exists, use it
-    tr = _fetch_translation("sequential_latent", role, getattr(args, "task", ""), lang)
+    tr = _fetch_translation("sequential_latent", role, getattr(args, "task", ""), lang, args)
     if tr is not None:
-        user_prompt = _with_language_directive(tr.format(question=question, context=context), lang)
+        user_prompt = _with_language_directive(tr.format(question=question, context=context), lang, args)
         return [
             {"role": "system", "content": system_message},
             {"role": "user", "content": user_prompt},
@@ -220,7 +226,7 @@ Now, reason step by step and output the final answer inside \\boxed{{YOUR_FINAL_
         
     return [
         {"role": "system", "content": system_message},
-        {"role": "user", "content": _with_language_directive(user_prompt, lang)},
+        {"role": "user", "content": _with_language_directive(user_prompt, lang, args)},
     ]
 
 
@@ -229,9 +235,9 @@ def build_agent_message_hierarchical_latent_mas(role: str, question: str, contex
     lang = _get_prompt_lang_from_args(args)
     system_message = _TRANSLATIONS.get(lang, {}).get("system_message", "You are Qwen, created by Alibaba Cloud. You are a helpful assistant.")
 
-    tr = _fetch_translation("hierarchical_latent", role, getattr(args, "task", ""), lang)
+    tr = _fetch_translation("hierarchical_latent", role, getattr(args, "task", ""), lang, args)
     if tr is not None:
-        user_content = _with_language_directive(tr.format(question=question, context=context), lang)
+        user_content = _with_language_directive(tr.format(question=question, context=context), lang, args)
         return [
             {"role": "system", "content": system_message},
             {"role": "user", "content": user_content},
@@ -452,7 +458,7 @@ Your response:
 
     return [
         {"role": "system", "content": system_message},
-        {"role": "user", "content": _with_language_directive(user_content, lang)},
+        {"role": "user", "content": _with_language_directive(user_content, lang, args)},
     ]
 
 
@@ -466,9 +472,9 @@ def build_agent_messages_sequential_text_mas(role: str, question: str, context: 
     lang = _get_prompt_lang_from_args(args)
     system_message = _TRANSLATIONS.get(lang, {}).get("system_message", "You are Qwen, created by Alibaba Cloud. You are a helpful assistant.")
 
-    tr = _fetch_translation("text_mas_sequential", role, getattr(args, "task", ""), lang)
+    tr = _fetch_translation("text_mas_sequential", role, getattr(args, "task", ""), lang, args)
     if tr is not None:
-        user_content = _with_language_directive(tr.format(question=question, context=context), lang)
+        user_content = _with_language_directive(tr.format(question=question, context=context), lang, args)
         return [
             {"role": "system", "content": system_message},
             {"role": "user", "content": user_content},
@@ -633,7 +639,7 @@ Now, reason step by step and present your final answer clearly at the end.
 
     return [
         {"role": "system", "content": system_message},
-        {"role": "user", "content": _with_language_directive(user_content, lang)},
+        {"role": "user", "content": _with_language_directive(user_content, lang, args)},
     ]
 
 
@@ -647,9 +653,9 @@ def build_agent_messages_hierarchical_text_mas(role: str, question: str, context
     lang = _get_prompt_lang_from_args(args)
     system_message = _TRANSLATIONS.get(lang, {}).get("system_message", "You are Qwen, created by Alibaba Cloud. You are a helpful assistant.")
 
-    tr = _fetch_translation("text_mas_hierarchical", role, getattr(args, "task", ""), lang)
+    tr = _fetch_translation("text_mas_hierarchical", role, getattr(args, "task", ""), lang, args)
     if tr is not None:
-        user_content = _with_language_directive(tr.format(question=question, context=context), lang)
+        user_content = _with_language_directive(tr.format(question=question, context=context), lang, args)
         return [
             {"role": "system", "content": system_message},
             {"role": "user", "content": user_content},
@@ -827,7 +833,7 @@ Your response:
 
     return [
         {"role": "system", "content": system_message},
-        {"role": "user", "content": _with_language_directive(user_content, lang)},
+        {"role": "user", "content": _with_language_directive(user_content, lang, args)},
     ]
 
 
@@ -841,9 +847,9 @@ def build_agent_messages_single_agent(question: str, args=None):
     lang = _get_prompt_lang_from_args(args)
     system_message = _TRANSLATIONS.get(lang, {}).get("system_message", "You are Qwen, created by Alibaba Cloud. You are a helpful assistant.")
 
-    tr = _fetch_translation("single_agent", "default", getattr(args, "task", ""), lang)
+    tr = _fetch_translation("single_agent", "default", getattr(args, "task", ""), lang, args)
     if tr is not None:
-        user_content = _with_language_directive(tr.format(question=question), lang)
+        user_content = _with_language_directive(tr.format(question=question), lang, args)
         return [
             {"role": "system", "content": system_message},
             {"role": "user", "content": user_content},
@@ -912,5 +918,5 @@ Present your reasoning, and then clearly state your final answer at the end.
 
     return [
         {"role": "system", "content": system_message},
-        {"role": "user", "content": _with_language_directive(user_content, lang)},
+        {"role": "user", "content": _with_language_directive(user_content, lang, args)},
     ]

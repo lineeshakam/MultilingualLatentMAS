@@ -106,9 +106,9 @@ def main():
     parser.add_argument("--prompt", type=str, choices=["sequential", "hierarchical"], default="sequential", help="Multi-agent system architecture: 'sequential' or 'hierarchical'.")
     parser.add_argument(
         "--prompt_language_mode",
-        choices=["target", "english"],
+        choices=["target", "english", "neutral"],
         default="target",
-        help="Use target-language prompts/directives, or English-control prompts while keeping the MGSM question language.",
+        help="Use target-language prompts/directives, English-control prompts, or neutral prompts with no forced reasoning language.",
     )
 
     # other args

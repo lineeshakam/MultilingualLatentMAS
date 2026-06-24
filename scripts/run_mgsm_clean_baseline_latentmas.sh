@@ -5,12 +5,14 @@ set -euo pipefail
 #   1. single-agent baseline
 #   2. LatentMAS with latent_space_realign
 #
-# Set PROMPT_LANGUAGE_MODE=target for current multilingual prompts, or
-# PROMPT_LANGUAGE_MODE=english for English-control prompts with translated MGSM questions.
+# Set PROMPT_LANGUAGE_MODE=neutral to avoid forcing any reasoning language.
+# Other options:
+#   target  = current multilingual prompts/directives
+#   english = English-control prompts/directives
 
 MODEL_NAME="${MODEL_NAME:-Qwen/Qwen3-4B}"
 LANGUAGES="${LANGUAGES:-bn,de,en,es,fr,ja,ru,sw,te,th,zh}"
-PROMPT_LANGUAGE_MODE="${PROMPT_LANGUAGE_MODE:-english}"
+PROMPT_LANGUAGE_MODE="${PROMPT_LANGUAGE_MODE:-neutral}"
 MAX_EXAMPLES="${MAX_EXAMPLES:-50}"
 MAX_NEW_TOKENS="${MAX_NEW_TOKENS:-2048}"
 DEVICE="${DEVICE:-auto}"

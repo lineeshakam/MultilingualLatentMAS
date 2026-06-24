@@ -543,9 +543,9 @@ def main():
     parser.add_argument("--prompt", choices=["sequential", "hierarchical"], default="sequential")
     parser.add_argument(
         "--prompt_language_mode",
-        choices=["target", "english"],
+        choices=["target", "english", "neutral"],
         default="target",
-        help="Use target-language prompts/directives, or English-control prompts while keeping the MGSM question language.",
+        help="Use target-language prompts/directives, English-control prompts, or neutral prompts with no forced reasoning language.",
     )
     parser.add_argument("--latent_steps", type=int, default=3)
     parser.add_argument("--max_examples", type=int, default=5, help="Examples per language. Use -1 for all MGSM test examples.")
