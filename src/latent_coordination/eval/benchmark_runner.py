@@ -330,6 +330,28 @@ class MultiAgentBenchmarkRunner:
                     "(valid: loglikelihood, generative)."
                 )
 
+        # --- MMLU-ProX: 2-10-choice MCQA, teacher-forced log-likelihood ---
+        if totals.get("mmlu_prox"):
+            from latent_coordination.eval.correctness import CorrectnessScorer
+            agent = self._pick_scoring_agent(router)
+            if agent is None or getattr(agent, "_model", None) is None:
+                raise RuntimeError(
+                    "MMLU-ProX log-likelihood scoring needs a loaded non-safety "
+                    "agent model; none is available."
+                )
+            scorer = CorrectnessScorer(
+                agent._model, agent._tokenizer, device=str(agent._device)
+            )
+            prox_tasks = [t for t in all_tasks if self._task_benchmark(t) == "mmlu_prox"]
+            report = scorer.score_multiple_choice_batch(
+                prompts=[t.metadata["prompt_stem"] for t in prox_tasks],
+                choices_list=[t.metadata["choices"] for t in prox_tasks],
+                gold_indices=[t.metadata["correct_idx"] for t in prox_tasks],
+                benchmark="mmlu_prox",
+            )
+            correct_by_bench["mmlu_prox"] = report.n_correct
+            metrics["accuracy_mmlu_prox"] = report.accuracy
+
         # --- SEA-Vision QA: normalized reference containment --------------
         if totals.get("sea_vision"):
             def _norm(s: str) -> str:
@@ -883,6 +905,8 @@ class MultiAgentBenchmarkRunner:
             tasks += self._load_afrimgsm_agent_tasks(self.benchmarks["afrimgsm"])
         if self.benchmarks.get("belebele", {}).get("enabled"):
             tasks += self._load_belebele_agent_tasks(self.benchmarks["belebele"])
+        if self.benchmarks.get("mmlu_prox", {}).get("enabled"):
+            tasks += self._load_mmlu_prox_agent_tasks(self.benchmarks["mmlu_prox"])
         if self.benchmarks.get("sea_vision", {}).get("enabled"):
             tasks += self._load_sea_vision_agent_tasks(self.benchmarks["sea_vision"])
         if self.benchmarks.get("sea_safeguardbench", {}).get("enabled"):
@@ -997,6 +1021,40 @@ class MultiAgentBenchmarkRunner:
                     },
                 ))
             logger.info("Loaded %d Belebele tasks for '%s'.", len(items), lang)
+        return tasks
+
+    def _load_mmlu_prox_agent_tasks(self, cfg: Dict) -> List:
+        """MMLU-ProX MCQA (2-10 choices/question) with choices + gold index."""
+        from latent_coordination.agents.base_agent import AgentTask
+        from latent_coordination.eval.correctness import (
+            MMLU_PROX_SUPPORTED_LANGUAGES,
+            load_mmlu_prox_tasks,
+        )
+
+        tasks = []
+        n = cfg.get("n_samples")
+        for lang in self._benchmark_languages(cfg, set(MMLU_PROX_SUPPORTED_LANGUAGES)):
+            items = load_mmlu_prox_tasks(language=lang, n=n)
+            for i, item in enumerate(items):
+                options = "\n".join(
+                    f"{k + 1}. {c}" for k, c in enumerate(item["choices"])
+                )
+                prompt_stem = (
+                    f"Question: {item['question']}\nOptions:\n{options}\n\n"
+                    f"Identify the correct option number (1-{len(item['choices'])}). Answer:"
+                )
+                tasks.append(AgentTask(
+                    task_id=f"mmlu_prox_{lang}_{i}",
+                    query=prompt_stem,
+                    target_language=lang,
+                    metadata={
+                        "benchmark": "mmlu_prox",
+                        "prompt_stem": prompt_stem,
+                        "choices": item["choices"],
+                        "correct_idx": item["correct_idx"],
+                    },
+                ))
+            logger.info("Loaded %d MMLU-ProX tasks for '%s'.", len(items), lang)
         return tasks
 
     def _load_sea_vision_agent_tasks(self, cfg: Dict) -> List:

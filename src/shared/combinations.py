@@ -179,6 +179,29 @@ BASELINES: Dict[str, BaselineSpec] = {
         "BlackboardMASBaseline", "standalone_class", False, frozenset(),
         "Class implemented; no run_*.py CLI wired to any benchmark yet.",
     ),
+    # dev_doc.md §3 "Recommended additions" -- CLI-wired 2026-07-08 (run_kvcomm.py /
+    # run_dytopo.py / run_optimal_agent_selection.py), unit-tested only. No real
+    # GPU eval run has been queued yet; treat any results these produce as fresh
+    # until a first live run lands under results/baselines/.
+    "kvcomm": BaselineSpec(
+        "kvcomm", "standalone_class", True, frozenset({"mgsm", "belebele"}),
+        "arXiv:2510.12872. Best-effort implementation from a one-line description "
+        "in dev_doc.md -- no paper text was available to verify fidelity. CLI "
+        "runner approximates 'online' KV-cache fusion via a single-token pseudo "
+        "(K,V) pair + soft-prefix injection, not a live per-layer generate() hook.",
+    ),
+    "dytopo": BaselineSpec(
+        "dytopo", "standalone_class", True, frozenset({"mgsm", "belebele"}),
+        "arXiv:2602.06039. Best-effort implementation from a one-line description "
+        "in dev_doc.md -- no paper text was available to verify fidelity. Topology "
+        "is untrained, recomputed each task from live cosine similarity (no VGAE).",
+    ),
+    "optimal_agent_selection": BaselineSpec(
+        "optimal_agent_selection", "standalone_class", True, frozenset({"mgsm", "belebele"}),
+        "arXiv:2511.02200. Best-effort implementation from a one-line description "
+        "in dev_doc.md -- no paper text was available to verify fidelity. Exact "
+        "subset search (not approximate) since this pipeline's real agent pool is small.",
+    ),
 }
 
 
@@ -219,6 +242,20 @@ BENCHMARKS: Dict[str, BenchmarkSpec] = {
         "data.py::load_belebele / dataset_loader.py::DatasetLoader.load_belebele",
         notes="facebook/belebele has ~122 languages total; only the ones this repo's "
         "BELEBELE_LANG_MAP maps are enumerated here.",
+    ),
+    "mmlu_prox": BenchmarkSpec(
+        "mmlu_prox", TaskType.KNOWLEDGE_MCQA,
+        frozenset({
+            "af", "ar", "bn", "cs", "de", "en", "es", "fr", "hi", "hu", "id", "it",
+            "ja", "ko", "mr", "ne", "pt", "ru", "sr", "sw", "te", "th", "uk", "ur",
+            "vi", "wo", "yo", "zh", "zu",
+        }),
+        "eval.correctness::load_mmlu_prox_tasks",
+        notes="li-lab/MMLU-ProX, verified live 2026-07-08 (the dev_doc.md-guessed "
+        "'TIGER-Lab/MMLU-ProX' id does not exist on the Hub). 2-10 choices per "
+        "question (option_N columns; unused slots are None and filtered by the "
+        "loader). Of this project's tracked high-risk scripts, only bn/sw/te/th "
+        "are covered -- no lo/km/my/am release exists, same upstream gap as MGSM.",
     ),
     "multilingual_reasoning_gym": BenchmarkSpec(
         "multilingual_reasoning_gym", TaskType.MATH_REASONING,

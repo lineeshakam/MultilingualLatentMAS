@@ -469,3 +469,72 @@ def load_belebele_tasks(language: str = "eng_Latn", split: str = "test", n: Opti
             "correct_idx": correct_idx,
         })
     return items[:n] if n is not None else items
+
+
+# li-lab/MMLU-ProX is the real dataset (verified live via
+# datasets.get_dataset_config_names("li-lab/MMLU-ProX") 2026-07-08 -- the
+# dev_doc.md-guessed "TIGER-Lab/MMLU-ProX" id does not exist on the Hub).
+# Configs are per-language (not splits); every config exposes "validation"
+# and "test" splits. Verified against a real row: up to 10 options
+# (option_0..option_9), but not every question has 10 -- unused trailing
+# slots are `None` and must be filtered out before scoring, not passed
+# through as an empty-string choice. `answer_index` is already the correct
+# 0-based index into the (unfiltered) option_N sequence.
+MMLU_PROX_SUPPORTED_LANGUAGES = frozenset({
+    "af", "ar", "bn", "cs", "de", "en", "es", "fr", "hi", "hu", "id", "it",
+    "ja", "ko", "mr", "ne", "pt", "ru", "sr", "sw", "te", "th", "uk", "ur",
+    "vi", "wo", "yo", "zh", "zu",
+})
+# Of this project's tracked high-risk scripts, only bn/sw/te/th are covered;
+# lo/km/my/am have no MMLU-ProX release (same upstream gap pattern as MGSM).
+
+
+def load_mmlu_prox_tasks(language: str = "en", split: str = "test", n: Optional[int] = None):
+    """Load MMLU-ProX tasks from the Hugging Face datasets hub.
+
+    Returns a list of dicts with keys: ``question``, ``choices`` (list of
+    2-10 strings, gaps in the raw ``option_N`` columns removed), ``correct_idx``
+    (0-based int into ``choices`` after gap removal).
+
+    Raises:
+        ValueError: if ``language`` is outside MMLU_PROX_SUPPORTED_LANGUAGES.
+    """
+    if language not in MMLU_PROX_SUPPORTED_LANGUAGES:
+        raise ValueError(
+            f"MMLU-ProX does not have data for language '{language}'. "
+            f"li-lab/MMLU-ProX only covers {sorted(MMLU_PROX_SUPPORTED_LANGUAGES)} "
+            "(no Lao/Khmer/Burmese/Amharic release exists)."
+        )
+    try:
+        from datasets import load_dataset  # type: ignore
+    except ImportError as exc:
+        raise RuntimeError("datasets library required: pip install datasets") from exc
+    ds = load_dataset("li-lab/MMLU-ProX", language, split=split)
+    items = []
+    for row in ds:
+        raw_choices = [row.get(f"option_{i}") for i in range(10)]
+        # answer_index indexes the raw (pre-filter) option_N sequence, so
+        # compute the post-filter index by counting real options before it --
+        # dropping Nones first and reusing the raw index would silently
+        # misalign every question with a filtered-out option before the gold.
+        gold_raw_idx = int(row["answer_index"])
+        choices = []
+        correct_idx = None
+        for i, c in enumerate(raw_choices):
+            if c is None:
+                continue
+            if i == gold_raw_idx:
+                correct_idx = len(choices)
+            choices.append(c)
+        if correct_idx is None:
+            logger.warning(
+                "MMLU-ProX row %s: answer_index %d pointed at a None option; skipping.",
+                row.get("question_id"), gold_raw_idx,
+            )
+            continue
+        items.append({
+            "question": row["question"],
+            "choices": choices,
+            "correct_idx": correct_idx,
+        })
+    return items[:n] if n is not None else items

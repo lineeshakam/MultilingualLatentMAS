@@ -68,7 +68,7 @@ try_claim_and_launch() (
   setsid nohup python scripts/run_coordination_pipeline.py \
     --config configs/bench_suite/het_belebele_sg.yaml --resume \
     --comm-modes single_agent_baseline,oneflow,latent_based_mas_ours \
-    >> logs/bench_suite/het_belebele_sg.safety_rerun.log 2>&1 < /dev/null &
+    >> logs/bench_suite/het_belebele_sg.safety_rerun.log 2>&1 < /dev/null {LOCK_FD}<&- &
   DRIVER_PID=$!
   disown -a
   log "launched, driver pid=$DRIVER_PID -- verifying it survives startup (45s)"
@@ -85,16 +85,29 @@ try_claim_and_launch() (
     PYTHONPATH=src python scripts/recompute_safety_rate.py --config het_belebele_sg --force \
       >> logs/bench_suite/het_belebele_sg.safety_rerun.log 2>&1
     log "safety_reparse_summary.json refreshed" ) \
-    >> "$LOG" 2>&1 < /dev/null &
+    >> "$LOG" 2>&1 < /dev/null {LOCK_FD}<&- &
   disown -a
 
   return 0
 )
 
 log "watching for >=3 idle GPUs (<500MiB used)"
+# Bug fixed 2026-07-08: 'flock "$LOCK" bash -c "...try_claim_and_launch"' let
+# both backgrounded children above inherit the lock FD across the exec
+# chain; since neither closed it, the advisory lock stayed held for their
+# entire lifetime (the multi-day eval run, then the summary-refresh waiter),
+# starving geo_profiles/staircase/hom_remaining_modes regardless of real GPU
+# availability -- confirmed live 2026-07-08 (see fuser output showing this
+# script's launched driver PID still holding the lock FD 3+ hours in). Fixed
+# by taking the lock on an explicit named FD in this shell instead of
+# letting 'flock' exec a throwaway bash whose descriptors leak into whatever
+# it launches; {LOCK_FD}<&- above closes it in each child specifically.
+exec {LOCK_FD}<>"$LOCK"
 while true; do
-  if flock "$LOCK" bash -c "$(declare -f try_claim_and_launch log); try_claim_and_launch"; then
-    break
-  fi
+  flock -x "$LOCK_FD"
+  RC=0
+  try_claim_and_launch || RC=$?
+  flock -u "$LOCK_FD"
+  [ "$RC" -eq 0 ] && break
   sleep 300
 done

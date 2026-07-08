@@ -72,6 +72,11 @@ quick reference.
     ```bash
     python -m latent_coordination.baselines.run_latentmas --model_id Qwen/Qwen2.5-7B-Instruct --benchmark mgsm --language en
     python -m latent_coordination.baselines.run_thoughtcomm --model_id Qwen/Qwen2.5-7B-Instruct --benchmark belebele --language th
+    # added 2026-07-08 -- unit-tested only, no live GPU eval run yet; see
+    # dev_doc.md §12 for the fidelity caveats before citing these
+    python -m latent_coordination.baselines.run_kvcomm --model_id Qwen/Qwen2.5-7B-Instruct --benchmark mgsm --language en
+    python -m latent_coordination.baselines.run_dytopo --model_id Qwen/Qwen2.5-7B-Instruct --benchmark mgsm --language en
+    python -m latent_coordination.baselines.run_optimal_agent_selection --model_id Qwen/Qwen2.5-7B-Instruct --benchmark mgsm --language en
     ```
 *   **Enumerate/validate what's actually runnable** -- `src/shared/combinations.py` is
     the single source of truth for which (model, baseline, benchmark, language, metric)
@@ -369,7 +374,9 @@ LatentMAS/
 
 > See `dev_doc.md` for the full architectural boundaries between `latent_coordination`/
 > `mechanistic_disentangle`/`shared`, the evaluation matrix, metric definitions, and a
-> comprehensive test-combination list with time estimates.
+> comprehensive test-combination list with time estimates. §§12-13 cover the
+> latest session (new baselines, MMLU-ProX, cost-frontier wiring, staged-but-
+> not-launched CVAE production configs, and a cross-repo GPU-lock bugfix).
 
 > The analysis code under `src/multilingual-latent-reasoning/` adds the repo root to
 > `sys.path` itself, so launch those scripts from the repository root. The

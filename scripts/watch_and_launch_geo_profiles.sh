@@ -48,9 +48,19 @@ try_claim_and_launch() (
 )
 
 log "watching for 1 idle GPU (<500MiB used)"
+# Bug fixed 2026-07-08: 'flock "$LOCK" bash -c "...try_claim_and_launch"' let
+# this script's lock FD leak into whatever it exec'd; harmless here (the
+# export runs synchronously, no backgrounded child to inherit it), but
+# switched to the same explicit-FD pattern as the other watchers for
+# consistency and so a future edit adding a backgrounded step doesn't
+# silently reintroduce the cross-script starvation bug (see
+# watch_and_launch_staircase.sh for the full story).
+exec {LOCK_FD}<>"$LOCK"
 while true; do
-  if flock "$LOCK" bash -c "$(declare -f try_claim_and_launch log); try_claim_and_launch"; then
-    break
-  fi
+  flock -x "$LOCK_FD"
+  RC=0
+  try_claim_and_launch || RC=$?
+  flock -u "$LOCK_FD"
+  [ "$RC" -eq 0 ] && break
   sleep 300
 done

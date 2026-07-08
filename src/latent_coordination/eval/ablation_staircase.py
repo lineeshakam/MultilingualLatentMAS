@@ -19,6 +19,11 @@ Row    Name                    Modules active      Real knobs toggled
 4      latent_reasoned         A+B+D+C             + latent_reasoning.enabled
 5      closed_loop_full        A+B+D+C+E           + verification.enabled
 6      verifier_disabled       A+B+D+C (E off)     row-5 config minus E
+3b     kmeans_routed           A+B                 routing_strategy=kmeans
+                                                   (vs row 2's attention)
+3c     bilstm_query_encoder    A+B+D               cvae.use_transformer_
+                                                   encoder=false (vs row 3's
+                                                   Transformer encoder)
 7a_*   loss-term split         A+B variants        mu_cka / gamma_dae zeroed
 =====  ======================  ==================  ============================
 
@@ -150,6 +155,23 @@ STAIRCASE_ROWS: List[AblationRow] = [
          "marginal utility of E vs row 5",
          _CORRECTNESS_ON, _MODULES_AB, _MODULE_D, _MODULE_C,
          {"verification.enabled": False}),
+    # 3b/3c — dev_doc.md §11 "Router Ablation": attention/cvae was already
+    # comparable via rows 1-3, but kmeans and the BiLSTM query encoder were
+    # never actually exercised by any row (use_transformer_encoder was read
+    # nowhere in the pipeline until this session -- see
+    # coordination_pipeline.py::_run_stage_b). Both compare against row 2's
+    # A+B baseline (same modules active, only the router/encoder differs) so
+    # the ablation isolates the router choice, not module presence.
+    _row("3b_kmeans_router", "kmeans_routed", "A+B",
+         "k-means centroid routing vs row-2's attention router",
+         _CORRECTNESS_ON, _MODULES_AB,
+         {"latent_reasoning.enabled": False, "verification.enabled": False,
+          "orchestration.routing_strategy": "kmeans"}),
+    _row("3c_bilstm_encoder", "bilstm_query_encoder", "A+B+D",
+         "BiLSTM CVAE query encoder vs row-3's Transformer encoder",
+         _CORRECTNESS_ON, _MODULES_AB, _MODULE_D,
+         {"latent_reasoning.enabled": False, "verification.enabled": False,
+          "cvae.use_transformer_encoder": False}),
     # 7a — intra-Module-A+B loss-term split (recon is the base term; the
     # full combination is row 2 itself).
     _row("7a_recon_only", "ab_split_recon_only", "A+B (L_recon)",

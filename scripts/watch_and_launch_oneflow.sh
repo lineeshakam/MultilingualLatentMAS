@@ -48,7 +48,7 @@ try_claim_and_launch() (
   setsid nohup python scripts/run_coordination_pipeline.py \
     --config configs/bench_suite/het_belebele_sg.yaml --resume \
     --comm-modes oneflow \
-    >> logs/bench_suite/het_belebele_sg.oneflow.log 2>&1 < /dev/null &
+    >> logs/bench_suite/het_belebele_sg.oneflow.log 2>&1 < /dev/null {LOCK_FD}<&- &
   JOB_PID=$!
   disown -a
   log "launched, driver pid=$JOB_PID -- verifying it survives startup (45s)"
@@ -68,9 +68,15 @@ try_claim_and_launch() (
 )
 
 log "watching for >=3 idle GPUs (<500MiB used)"
+# Bug fixed 2026-07-08: see watch_and_launch_staircase.sh -- backgrounded
+# jobs launched inside a 'flock "$LOCK" bash -c ...' inherited the lock FD
+# and held it for their entire lifetime, starving every other watcher.
+exec {LOCK_FD}<>"$LOCK"
 while true; do
-  if flock "$LOCK" bash -c "$(declare -f try_claim_and_launch log); try_claim_and_launch"; then
-    break
-  fi
+  flock -x "$LOCK_FD"
+  RC=0
+  try_claim_and_launch || RC=$?
+  flock -u "$LOCK_FD"
+  [ "$RC" -eq 0 ] && break
   sleep 300
 done

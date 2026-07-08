@@ -553,6 +553,14 @@ class CoordinationPipeline:
             query_dim=int(cvae_cfg.get("query_dim", 64)),
             geo_dim=geo_profile.geo_dim if geo_profile is not None else 0,
             max_n_agents=3,
+            # Router-ablation knob (dev_doc.md §11 "Router Ablation" /
+            # staircase row 3b): the BiLSTM query encoder (cvae_prior.py's
+            # `_QueryEncoder`) was previously unreachable dead code -- this
+            # config key was read nowhere, so `use_transformer_encoder`
+            # silently always used its own True default regardless of what
+            # any config set. Threading it through here is what makes the
+            # ablation row actually toggle a different encoder, not a no-op.
+            use_transformer_encoder=bool(cvae_cfg.get("use_transformer_encoder", True)),
         )
         cvae_prior = CVAETopologyPrior(config=t_config).to(self.config.device)
 

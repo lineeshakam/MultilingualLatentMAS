@@ -126,6 +126,10 @@ def test_unwired_benchmarks_are_a_known_documented_gap():
         "gsm8k", "aime2024", "aime2025", "gpqa_diamond", "arc_easy", "arc_challenge",
         "winogrande", "mbppplus", "humanevalplus", "medqa", "seabench", "multichallenge",
         "multilingual_reasoning_gym", "sea_vl",
+        # mmlu_prox: loader + correctness scoring wired 2026-07-08 (dev_doc.md §11
+        # correctness-scorer gap), but no baseline CLI targets it yet -- same
+        # "loader exists, no baseline wired" gap as the others in this set.
+        "mmlu_prox",
     }
     assert unwired == expected_unwired, (
         f"unwired-benchmark set changed: added={unwired - expected_unwired}, "

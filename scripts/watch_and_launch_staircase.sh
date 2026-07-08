@@ -59,7 +59,7 @@ try_claim_and_launch() (
   setsid nohup python scripts/run_ablation_staircase.py \
     --config configs/latent_coordination.yaml \
     "${ROWS_ARG[@]}" \
-    >> logs/bench_suite/staircase_run.log 2>&1 < /dev/null &
+    >> logs/bench_suite/staircase_run.log 2>&1 < /dev/null {LOCK_FD}<&- &
   JOB_PID=$!
   disown -a
   log "launched, driver pid=$JOB_PID -- verifying it survives startup (45s)"
@@ -81,9 +81,21 @@ try_claim_and_launch() (
 )
 
 log "watching for >=4 idle GPUs (<500MiB used)"
+# Bug fixed 2026-07-08: 'flock "$LOCK" bash -c "...try_claim_and_launch"' held
+# the lock via an FD that any 'setsid nohup ... &' child inherited across the
+# exec chain; since the child never closed it, the advisory lock stayed held
+# for that child's ENTIRE lifetime (hours/days), not just this loop's brief
+# claim decision -- starving every other watcher sharing the same lock file
+# regardless of real GPU availability. Fixed by taking the lock on an
+# explicit named FD in this shell (so `{LOCK_FD}<&-` can close it in the
+# backgrounded child specifically) instead of letting `flock` exec a
+# throwaway bash whose descriptors leak into whatever it launches.
+exec {LOCK_FD}<>"$LOCK"
 while true; do
-  if flock "$LOCK" bash -c "$(declare -f try_claim_and_launch log); try_claim_and_launch"; then
-    break
-  fi
+  flock -x "$LOCK_FD"
+  RC=0
+  try_claim_and_launch || RC=$?
+  flock -u "$LOCK_FD"
+  [ "$RC" -eq 0 ] && break
   sleep 300
 done
