@@ -21,13 +21,19 @@
 # GPU claims are serialized via flock across ALL gpu-watching scripts so two
 # watchers can never double-book the same idle GPU.
 set -u
+# Prevents a class of bug hit 2026-07-08: a __pycache__ .pyc compiled before
+# a source edit can be treated as still-valid if the .py mtime ever moves
+# backward (e.g. a git checkout/reset after the edit), silently running old
+# bytecode in a fresh process despite the source file on disk being current.
+# Cost is a full recompile per launch, negligible next to these jobs' runtime.
+export PYTHONDONTWRITEBYTECODE=1
 cd "$(dirname "$0")/.."
 LOG=logs/bench_suite/safety_rerun_watcher.log
 LOCK=/tmp/multilinguallatentmas_gpu_claim.lock
 CACHE_DIR=.cache/checkpoints/bench_suite/het_belebele_sg/coordination/_results
 CACHE_FILE="$CACHE_DIR/coord__aisingapore_Llama-SEA-LION-v3-8B-IT_sail_Sailor2-8B-Chat_meta-llama_Llama-3.1-8B-Instruct_CohereLabs_aya-expanse-8b__06c47cdd__mode__single_agent_baseline.pt"
 mkdir -p logs/bench_suite
-export LOG
+export LOG CACHE_DIR CACHE_FILE
 log() { echo "[$(date -u +%FT%TZ)] [safety_rerun] $*" >> "$LOG"; }
 
 try_claim_and_launch() (
@@ -53,14 +59,26 @@ try_claim_and_launch() (
   export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
   export PYTHONPATH=src
 
-  log "launching het_belebele_sg --comm-modes single_agent_baseline (fixed parser) on gpus=$CLAIMED"
+  # Consolidated with the previously-separate oneflow/latent_based_mas_ours
+  # rerun (het_belebele_sg's driver gave up on both after a stale-bytecode
+  # AttributeError crash -- see watch_and_launch_belebele_remaining_modes.sh)
+  # into one process so the 4 agent models load once, not twice across two
+  # separate 3-GPU jobs.
+  log "launching het_belebele_sg --comm-modes single_agent_baseline,oneflow,latent_based_mas_ours on gpus=$CLAIMED"
   setsid nohup python scripts/run_coordination_pipeline.py \
     --config configs/bench_suite/het_belebele_sg.yaml --resume \
-    --comm-modes single_agent_baseline \
+    --comm-modes single_agent_baseline,oneflow,latent_based_mas_ours \
     >> logs/bench_suite/het_belebele_sg.safety_rerun.log 2>&1 < /dev/null &
   DRIVER_PID=$!
   disown -a
-  log "launched, driver pid=$DRIVER_PID"
+  log "launched, driver pid=$DRIVER_PID -- verifying it survives startup (45s)"
+  sleep 45
+  if ! kill -0 "$DRIVER_PID" 2>/dev/null; then
+    log "pid=$DRIVER_PID died within 45s -- likely OOM/crash; will retry. Last lines:"
+    tail -15 logs/bench_suite/het_belebele_sg.safety_rerun.log >> "$LOG"
+    return 1
+  fi
+  log "pid=$DRIVER_PID alive after 45s, launch looks healthy"
 
   ( while kill -0 "$DRIVER_PID" 2>/dev/null; do sleep 60; done
     log "driver pid=$DRIVER_PID done -- refreshing safety_reparse_summary.json"

@@ -201,7 +201,16 @@ def recompute_mode(
         "recomputed_at": time.strftime("%Y%m%dT%H%M%SZ", time.gmtime()),
     }
 
-    if entries:
+    # Branch on mode identity, not on whether `entries` happens to be
+    # non-empty. select_answer() falls back to the safety response only when
+    # a task's ENTIRE routed sequence was safety-only (rare -- 2 tasks total
+    # out of ~2000 in a live run), so token_based_mas/latent_based_mas_ours
+    # caches can carry a handful of stray safety_verdict-tagged entries
+    # despite not being the real verdict pool. Treating those as "the"
+    # pool (old `if entries:`) silently computed safety_rate from n=2 instead
+    # of using the log-reconstructed pool below -- caught 2026-07-08 when it
+    # produced a safety_rate of 0.0 from n_verdicts=2.
+    if mode == "single_agent_baseline" and entries:
         # Direct path (single_agent_baseline: safeguard answers ARE safety
         # responses, so verdicts are in the cache). Reparse each unparsed one.
         n_unparsed = n_recovered = n_now_safe = n_now_unsafe = 0

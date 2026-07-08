@@ -16,6 +16,12 @@
 # inside one held lock per attempt, not just the nvidia-smi read, so two
 # watchers can never both see the same idle GPU and double-book it.
 set -u
+# Prevents a class of bug hit 2026-07-08: a __pycache__ .pyc compiled before
+# a source edit can be treated as still-valid if the .py mtime ever moves
+# backward (e.g. a git checkout/reset after the edit), silently running old
+# bytecode in a fresh process despite the source file on disk being current.
+# Cost is a full recompile per launch, negligible next to these jobs' runtime.
+export PYTHONDONTWRITEBYTECODE=1
 cd "$(dirname "$0")/.."
 LOG=logs/bench_suite/staircase_watcher.log
 LOCK=/tmp/multilinguallatentmas_gpu_claim.lock
@@ -54,9 +60,24 @@ try_claim_and_launch() (
     --config configs/latent_coordination.yaml \
     "${ROWS_ARG[@]}" \
     >> logs/bench_suite/staircase_run.log 2>&1 < /dev/null &
+  JOB_PID=$!
   disown -a
-  log "launched, driver pid=$!"
-  return 0
+  log "launched, driver pid=$JOB_PID -- verifying it survives startup (45s)"
+  # Backgrounding + disown meant this function always returned 0 regardless
+  # of whether the launched job actually started (observed: gmp_factorial
+  # and geo_profiles both OOM'd within seconds of launch on a GPU the
+  # nvidia-smi check called "free," and the watcher exited anyway, silently
+  # abandoning the job with no retry). Give it a startup window and confirm
+  # it's still alive before declaring the claim successful.
+  sleep 45
+  if kill -0 "$JOB_PID" 2>/dev/null; then
+    log "pid=$JOB_PID alive after 45s, launch looks healthy"
+    return 0
+  else
+    log "pid=$JOB_PID died within 45s -- likely OOM/crash; will retry. Last lines:"
+    tail -15 logs/bench_suite/staircase_run.log >> "$LOG"
+    return 1
+  fi
 )
 
 log "watching for >=4 idle GPUs (<500MiB used)"

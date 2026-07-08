@@ -12,6 +12,12 @@
 #
 # Usage: run_instance.sh <instance_name> <gpu_ids> <config1.yaml> [config2.yaml ...]
 set -u
+# Prevents a class of bug hit 2026-07-08: a __pycache__ .pyc compiled before
+# a source edit can be treated as still-valid if the .py mtime ever moves
+# backward (e.g. a git checkout/reset after the edit), silently running old
+# bytecode in a fresh process despite the source file on disk being current.
+# Cost is a full recompile per launch, negligible next to these jobs' runtime.
+export PYTHONDONTWRITEBYTECODE=1
 INSTANCE=$1
 GPUS=$2
 shift 2

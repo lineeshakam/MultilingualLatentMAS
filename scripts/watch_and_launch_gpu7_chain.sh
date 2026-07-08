@@ -8,6 +8,12 @@
 # Idempotent: export_geo_profiles.py overwrite is harmless to rerun, and
 # rerun_baselines_queue.sh skips specs whose result already exists.
 set -u
+# Prevents a class of bug hit 2026-07-08: a __pycache__ .pyc compiled before
+# a source edit can be treated as still-valid if the .py mtime ever moves
+# backward (e.g. a git checkout/reset after the edit), silently running old
+# bytecode in a fresh process despite the source file on disk being current.
+# Cost is a full recompile per launch, negligible next to these jobs' runtime.
+export PYTHONDONTWRITEBYTECODE=1
 WAIT_PID=$1
 cd "$(dirname "$0")/.."
 LOG=logs/baselines/gpu7_chain_watcher.log
@@ -24,6 +30,7 @@ CUDA_VISIBLE_DEVICES=7 PYTHONPATH=src python scripts/export_geo_profiles.py \
   --model aisingapore/Llama-SEA-LION-v3-8B-IT \
   --languages th,my,km,lo,am,sw,bn,te \
   --n-samples 64 \
+  --load-in-8bit \
   --output results/mechanistic/geo_profiles.json \
   >> logs/baselines/export_geo_profiles.log 2>&1
 RC=$?

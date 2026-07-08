@@ -16,6 +16,12 @@
 # pre-fix reference point used, which produced a non-comparable result for
 # belebele:tha_Thai (pre-fix used SEA-LION, the bare queue spec used Qwen).
 set -u
+# Prevents a class of bug hit 2026-07-08: a __pycache__ .pyc compiled before
+# a source edit can be treated as still-valid if the .py mtime ever moves
+# backward (e.g. a git checkout/reset after the edit), silently running old
+# bytecode in a fresh process despite the source file on disk being current.
+# Cost is a full recompile per launch, negligible next to these jobs' runtime.
+export PYTHONDONTWRITEBYTECODE=1
 GPU=$1
 QUEUE=$2
 shift 2
