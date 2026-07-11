@@ -28,7 +28,7 @@ shift 2
 
 cd "$(dirname "$0")/.."
 export CUDA_VISIBLE_DEVICES=$GPU
-export PYTHONPATH=src
+export PYTHONPATH=/home/hthakur/MultilingualLatentMAS/src
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 mkdir -p logs/baselines
 

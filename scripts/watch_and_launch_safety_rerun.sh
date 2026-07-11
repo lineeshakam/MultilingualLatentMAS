@@ -57,7 +57,7 @@ try_claim_and_launch() (
 
   export CUDA_VISIBLE_DEVICES=$CLAIMED
   export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
-  export PYTHONPATH=src
+  export PYTHONPATH=/home/hthakur/MultilingualLatentMAS/src
 
   # Consolidated with the previously-separate oneflow/latent_based_mas_ours
   # rerun (het_belebele_sg's driver gave up on both after a stale-bytecode
@@ -82,7 +82,7 @@ try_claim_and_launch() (
 
   ( while kill -0 "$DRIVER_PID" 2>/dev/null; do sleep 60; done
     log "driver pid=$DRIVER_PID done -- refreshing safety_reparse_summary.json"
-    PYTHONPATH=src python scripts/recompute_safety_rate.py --config het_belebele_sg --force \
+    PYTHONPATH=/home/hthakur/MultilingualLatentMAS/src python scripts/recompute_safety_rate.py --config het_belebele_sg --force \
       >> logs/bench_suite/het_belebele_sg.safety_rerun.log 2>&1
     log "safety_reparse_summary.json refreshed" ) \
     >> "$LOG" 2>&1 < /dev/null {LOCK_FD}<&- &

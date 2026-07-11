@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+export PYTHONPATH=/home/hthakur/MultilingualLatentMAS/src
 
 CONFIG="${CONFIG:-configs/bench_suite/hom_mgsm_first10_cvae_qwen3_4b.yaml}"
 STAGES="${STAGES:-A,B,C,D,E,F,G}"

@@ -1,9 +1,11 @@
 """Benchmark runner for the multi-agent coordination system.
 
-Executes tasks on real agents loaded with Qwen3.5-9B and measures
-latency, token cost, and task accuracy across three communication modes:
+Executes tasks on real agents and measures latency, token cost, and task
+accuracy across four communication modes:
   - single_agent_baseline: one agent handles the full task
   - token_based_mas: agents communicate via decoded text strings
+  - oneflow: one backbone role-plays every step (translation/reasoning/
+    safety) via shared weights, instead of a heterogeneous agent roster
   - latent_based_mas_ours: agents communicate via latent state transfers
 """
 
@@ -467,28 +469,46 @@ class MultiAgentBenchmarkRunner:
     # Per-mode evaluators (each returns (metrics_dict, responses_list))
     # ------------------------------------------------------------------
 
+    # Which agent role can produce a scoreable answer, per benchmark. A safety
+    # agent emits [SAFE]/[UNSAFE] verdicts and a translation agent restates the
+    # input in another language — neither is an answer to a reasoning/QA task,
+    # so routing them as the sole executor makes the baseline score ~0 by
+    # construction (observed live: het_mgsm single_agent 2026-07-09 routed
+    # agent_trans on 2076/2200 mgsm tasks -> accuracy 0.044).
+    _SINGLE_AGENT_ROLE_FOR_BENCHMARK = {
+        "sea_safeguardbench": "safety",
+        "flores_plus": "translation",
+    }
+    _SINGLE_AGENT_DEFAULT_ROLE = "reasoning"
+
     def _pick_single_agent(self, router, plan, task=None) -> Optional[str]:
         """Pick the substantive executor for the single-agent baseline.
 
-        A safety agent's output is a ``[SAFE]/[UNSAFE]`` verdict, not a task
-        answer — if the router happens to rank it first, using it as the sole
-        executor makes the baseline score 0 by construction. Prefer the first
-        selected agent whose role is not 'safety'; fall back to the first.
-        Exception: for safety-benchmark tasks (sea_safeguardbench) the verdict
-        IS the answer, so the safety agent is preferred instead.
+        Prefer, among the router-selected agents, the one whose role can
+        actually answer this benchmark's tasks (safety verdicts for
+        sea_safeguardbench, translation for flores_plus, reasoning otherwise);
+        fall back to any agent of that role, then to the first selected
+        non-safety agent, then to the router's first pick.
         """
-        want_safety = task is not None and self._task_benchmark(task) == "sea_safeguardbench"
-        for aid in plan.selected_agents:
+        bench = self._task_benchmark(task) if task is not None else ""
+        want_role = self._SINGLE_AGENT_ROLE_FOR_BENCHMARK.get(
+            bench, self._SINGLE_AGENT_DEFAULT_ROLE)
+
+        def _role(aid):
             agent = router.agents.get(aid)
-            role = getattr(getattr(agent, "config", None), "role", None)
-            if (role == "safety") == want_safety:
+            return getattr(getattr(agent, "config", None), "role", None)
+
+        for aid in plan.selected_agents:
+            if _role(aid) == want_role:
                 return aid
-        # A safety task with no safety agent routed: fall back to ANY safety
-        # agent before giving up (the verdict is the only scoreable output).
-        if want_safety:
-            for aid, agent in router.agents.items():
-                if getattr(getattr(agent, "config", None), "role", None) == "safety":
-                    return aid
+        # Wanted role not routed: fall back to ANY agent of that role (its
+        # output is the only scoreable kind for this benchmark).
+        for aid, agent in router.agents.items():
+            if getattr(getattr(agent, "config", None), "role", None) == want_role:
+                return aid
+        for aid in plan.selected_agents:
+            if _role(aid) != "safety":
+                return aid
         return plan.selected_agents[0] if plan.selected_agents else None
 
     # ------------------------------------------------------------------
@@ -871,8 +891,17 @@ class MultiAgentBenchmarkRunner:
                 )
                 # The per-chunk partial state has been fully superseded by the
                 # completed-mode cache above; drop it so a future run doesn't
-                # keep stale in-progress state around.
-                checkpoint_manager.delete_result(f"{cache_key}::partial")
+                # keep stale in-progress state around. Best-effort: the mode's
+                # results are already durably cached, so a cleanup failure must
+                # not abort the run (a missing delete_result on a mismatched
+                # CheckpointManager killed two multi-day runs, 2026-07-09/-11).
+                try:
+                    checkpoint_manager.delete_result(f"{cache_key}::partial")
+                except Exception as exc:
+                    logger.warning(
+                        "Could not delete superseded partial cache for mode '%s' "
+                        "(continuing; a leftover ::partial is harmless): %r", mode, exc,
+                    )
             logger.info("Mode '%s' complete | accuracy=%.3f", mode, metrics["accuracy"])
 
         ts = datetime.now(tz=timezone.utc).strftime("%Y%m%dT%H%M%SZ")

@@ -22,6 +22,14 @@ INSTANCE=$1
 GPUS=$2
 shift 2
 
+# Pin cwd and module resolution to THIS repo. Without an explicit PYTHONPATH,
+# a sibling repo's legacy editable .pth (LRL-MRRE-MAS) wins the sys.path race
+# and `import shared` binds to its older copy — the chimera imports that
+# crashed and tainted the Jul 4-11 driver runs (children inherited whatever
+# env the launching shell happened to have).
+cd "$(dirname "$0")/../.."
+export PYTHONPATH=/home/hthakur/MultilingualLatentMAS/src
+
 export CUDA_VISIBLE_DEVICES=$GPUS
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 

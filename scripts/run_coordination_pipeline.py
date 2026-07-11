@@ -27,6 +27,24 @@ from typing import Optional, List, Dict, Any
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from compute_scan import run_compute_scan
 
+# A sibling repo's legacy editable install (site-packages
+# __editable__.multilingual_representation_alignment-0.1.0.pth) injects
+# /home/hthakur/LRL-MRRE-MAS/src into sys.path of EVERY python process, so
+# without an explicit PYTHONPATH `import shared` binds to that repo's older
+# copy while its missing submodules fall through to this repo -- a chimera
+# that crashed het/hom runs on CheckpointManager.delete_result (2026-07-08 to
+# -11) and silently ran old model_loader code. Force this repo's src/ to the
+# front and refuse to start if `shared` still resolves elsewhere.
+_REPO_SRC = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src")
+sys.path.insert(0, _REPO_SRC)
+import shared.checkpointing as _shared_probe  # noqa: E402
+if not os.path.abspath(_shared_probe.__file__).startswith(_REPO_SRC + os.sep):
+    raise RuntimeError(
+        f"Import chimera: shared.checkpointing resolved to {_shared_probe.__file__}, "
+        f"expected a path under {_REPO_SRC}. Check sys.path/.pth injection."
+    )
+del _shared_probe
+
 __author__ = "Himon Thakur"
 __copyright__ = "Copyright 2026, Himon Thakur"
 __credits__ = ["Himon Thakur"]

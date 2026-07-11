@@ -17,7 +17,7 @@ LOAD_IN_4BIT="${LOAD_IN_4BIT:-0}"
 OUT_DIR="${OUT_DIR:-results/latent_coordination_mgsm_plain}"
 RUN_NAME="${RUN_NAME:-}"
 
-export PYTHONPATH="src:.:${PYTHONPATH:-}"
+export PYTHONPATH="/home/hthakur/MultilingualLatentMAS/src:/home/hthakur/MultilingualLatentMAS:${PYTHONPATH:-}"
 export LD_LIBRARY_PATH="${CONDA_PREFIX:-}/lib:${LD_LIBRARY_PATH:-}"
 export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True}"
 

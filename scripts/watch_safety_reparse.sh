@@ -5,6 +5,7 @@
 # stopped (after one final pass), or after 6 days.
 set -u
 cd "$(dirname "$0")/.."
+export PYTHONPATH=/home/hthakur/MultilingualLatentMAS/src
 LOG=logs/bench_suite/safety_reparse_watcher.log
 deadline=$(( $(date +%s) + 6*24*3600 ))
 

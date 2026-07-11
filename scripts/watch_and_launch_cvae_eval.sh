@@ -55,7 +55,7 @@ try_claim_and_launch() (
 
   export CUDA_VISIBLE_DEVICES=$CLAIMED
   export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
-  export PYTHONPATH=src
+  export PYTHONPATH=/home/hthakur/MultilingualLatentMAS/src
 
   JOBLOG="logs/bench_suite/${CONFIG_NAME}.log"
   # First launch: no checkpoint exists yet at this config's own (new)

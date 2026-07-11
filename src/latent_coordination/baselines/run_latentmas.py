@@ -96,6 +96,10 @@ class LatentMASRunReport:
     mean_latency_ms: float
     total_wall_clock_s: float
     n_heterogeneous_errors: int      # tasks that failed due to hidden-dim mismatch
+    # Per-task audit trail: without it, aggregate-only reports made anomalies
+    # (e.g. mgsm en scoring below th, 2026-07-06 runs) impossible to diagnose
+    # post-hoc.
+    entries: List[Dict] = field(default_factory=list)
     timestamp_utc: str = field(default_factory=lambda: datetime.now(tz=timezone.utc).strftime("%Y%m%dT%H%M%SZ"))
 
     def to_dict(self) -> Dict:
@@ -107,6 +111,22 @@ class LatentMASRunReport:
         with open(path, "w", encoding="utf-8") as f:
             json.dump(self.to_dict(), f, indent=2)
         logger.info("LatentMAS run report saved to %s", path)
+
+
+def _audit_entries(results, token_costs, latencies_ms) -> List[Dict]:
+    """Serialize per-task results for the report's audit trail."""
+    return [
+        {
+            "idx": i,
+            "is_correct": bool(r.is_correct),
+            "predicted": r.predicted,
+            "gold": r.gold,
+            "token_cost": token_costs[i],
+            "latency_ms": round(latencies_ms[i], 1),
+            "snippet": (r.details or {}).get("raw_text_snippet", ""),
+        }
+        for i, r in enumerate(results)
+    ]
 
 
 def _load_model_and_tokenizer(config: LatentMASRunConfig):
@@ -252,6 +272,7 @@ def run_mgsm(config: LatentMASRunConfig) -> LatentMASRunReport:
         mean_latency_ms=sum(latencies_ms) / max(len(latencies_ms), 1),
         total_wall_clock_s=total_wall,
         n_heterogeneous_errors=n_hetero_errors,
+        entries=_audit_entries(results, token_costs, latencies_ms),
     )
 
 
@@ -344,6 +365,7 @@ def run_belebele(config: LatentMASRunConfig) -> LatentMASRunReport:
         mean_latency_ms=sum(latencies_ms) / max(len(latencies_ms), 1),
         total_wall_clock_s=total_wall,
         n_heterogeneous_errors=n_hetero_errors,
+        entries=_audit_entries(results, token_costs, latencies_ms),
     )
 
 

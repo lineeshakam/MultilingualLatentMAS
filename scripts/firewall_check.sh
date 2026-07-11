@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Firewall CI wrapper (strategy.md §6). Usage:
+export PYTHONPATH=/home/hthakur/MultilingualLatentMAS/src
 #   bash scripts/firewall_check.sh [--target=latent_coordination|mechanistic_disentangle|all]
 set -euo pipefail
 cd "$(dirname "$0")/.."

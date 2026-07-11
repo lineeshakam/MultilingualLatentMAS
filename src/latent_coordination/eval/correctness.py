@@ -76,13 +76,24 @@ class BenchmarkCorrectnessReport:
 # ---------------------------------------------------------------------------
 
 # Patterns to extract the final numeric answer from a chain-of-thought response.
-# Priority: explicit "The answer is X" > last number in the text.
+# Priority: \boxed{X} > explicit "The answer is X" > last number in the text.
+# Numbers must start with a digit: "[\d,\.]+" alone also matches bare
+# punctuation (a sentence-ending "."), which made the old fallback grab an
+# unparseable token and return None even when real numbers were present.
 _MGSM_ANSWER_PATTERNS = [
-    re.compile(r"(?:the\s+)?answer\s+is[:\s]+(-?[\d,\.]+)", re.IGNORECASE),
-    re.compile(r"(?:答案|答え|답|câu trả lời|उत्तर|الإجابة)[^:：]*[：:]\s*(-?[\d,\.]+)", re.UNICODE),
-    re.compile(r"=\s*(-?[\d,\.]+)\s*$", re.MULTILINE),
+    re.compile(r"\\boxed\{\s*\\?\$?\s*(-?\d[\d,\.]*)\s*\}"),
+    re.compile(r"(?:the\s+)?(?:final\s+)?answer\s+is[^\d\-]{0,16}(-?\d[\d,\.]*)", re.IGNORECASE),
+    re.compile(r"(?:答案|答え|답|câu trả lời|उत्तर|الإجابة)[^:：]*[：:]\s*[^\d\-]{0,8}(-?\d[\d,\.]*)", re.UNICODE),
+    re.compile(r"=\s*\\?\$?\s*(-?\d[\d,\.]*)\s*\\?\)?\s*$", re.MULTILINE),
 ]
-_LAST_NUMBER_PATTERN = re.compile(r"(-?[\d,\.]+)(?:\s*$|\s+[^\d])", re.MULTILINE)
+_LAST_NUMBER_PATTERN = re.compile(r"(-?\d[\d,\.]*)")
+
+
+def _parse_number(s: str) -> Optional[float]:
+    try:
+        return float(s.replace(",", "").rstrip("."))
+    except ValueError:
+        return None
 
 
 def extract_mgsm_answer(text: str) -> Optional[float]:
@@ -94,17 +105,14 @@ def extract_mgsm_answer(text: str) -> Optional[float]:
     for pat in _MGSM_ANSWER_PATTERNS:
         m = pat.search(text)
         if m:
-            try:
-                return float(m.group(1).replace(",", ""))
-            except ValueError:
-                continue
-    # Fallback: last number appearing in the text.
-    numbers = _LAST_NUMBER_PATTERN.findall(text)
-    if numbers:
-        try:
-            return float(numbers[-1].replace(",", ""))
-        except ValueError:
-            pass
+            val = _parse_number(m.group(1))
+            if val is not None:
+                return val
+    # Fallback: last parseable number appearing in the text.
+    for cand in reversed(_LAST_NUMBER_PATTERN.findall(text)):
+        val = _parse_number(cand)
+        if val is not None:
+            return val
     return None
 
 

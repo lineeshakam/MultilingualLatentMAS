@@ -45,7 +45,7 @@ CONFIGS=("$@")
 cd "$(dirname "$0")/../.."
 export CUDA_VISIBLE_DEVICES=$GPUS
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
-export PYTHONPATH=src
+export PYTHONPATH=/home/hthakur/MultilingualLatentMAS/src
 LOGDIR=logs/bench_suite
 mkdir -p "$LOGDIR"
 

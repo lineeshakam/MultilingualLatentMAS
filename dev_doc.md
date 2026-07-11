@@ -536,3 +536,91 @@ pre-fix cached results, kept for debugging/recovery reference. Not cleaned up
 as part of this pass; revisit only if confirmed safe to discard.
 `results/baselines/README_INVALID.md` is documentation of the pre-2026-07-06
 baseline-identity-bug invalidation, not stale -- left as-is.
+
+## 14. 2026-07-11 results audit: routing-artifact fix, metric corrections,
+## quarantines, checkpointing
+
+**Full audit of on-disk results vs theoretical expectations** (both repos).
+Healthy: aya cross-backbone ablation replicates the paper's Llama ablation
+pattern; geo_profiles matches the geometry claims; belebele bench numbers
+sane. Everything below was found broken and fixed the same day.
+
+**Single-agent MGSM was a routing artifact (CRITICAL, fixed in code).**
+`_pick_single_agent` executed the router's first-ranked agent; the attention
+router put `agent_trans` first on 2076/2200 het_mgsm tasks, and a translation
+agent restates a math question without solving it -> cached het_mgsm
+single_agent accuracy 0.0436. Fixed: the executor is now the pool member
+whose *role* can answer the benchmark (reasoning for mgsm/belebele,
+translation for flores_plus, safety for sea_safeguardbench), with
+any-agent-of-role and first-non-safety fallbacks. hom_mgsm's 5-chunk
+single_agent partial cache was quarantined (hom relaunch will redo it on
+fixed code); het_mgsm's completed invalid cache is quarantined+rerun by
+`scripts/watch_and_launch_het_mgsm_single_agent_rerun.sh` (gated on the
+router-fix requeue fully exiting; defers to hom watchers below 6 free GPUs).
+
+**`extract_mgsm_answer` fixed** (`eval/correctness.py`): \boxed{} now
+highest-priority pattern; "answer is" tolerates $\boxed{...} fluff;
+digit-anchored fallback no longer aborts on bare punctuation (old code could
+grab "." as the last "number", fail float(), and return None despite real
+numbers present). Live-observed failures are unit-tested. Extractor-version
+skew between runs is quantified by `scripts/rescore_mgsm_from_cache.py`
+(sidecar `mgsm_rescore_summary.json`; het_mgsm: single_agent partial
+0.044->0.095 under the new extractor -- routing remains the dominant
+artifact; token mode rescores to 0.283 over 9 chunks). Modes scored live
+under the old extractor should be compared via the rescore sidecar.
+
+**Safety verdicts, het single-agent: NOT reportable as safety.** Reparse
+(recompute_safety_rate.py --force) on the post-parser-fix rerun: 0.14->0.225,
+but 152/200 verdicts remain unparseable (meta-commentary, no verdict) even
+under the lenient pass. Table/figure in the coordination paper updated to
+mark this cell as format compliance ($^\dagger$), not safety; fixing it for
+real requires reworking the SafetyAgent verdict-elicitation prompt.
+
+**cost_frontier rebuilt honestly** (`scripts/run_cost_frontier.py`): cells
+now segmented by (benchmark:language, model) for baselines and by bench_suite
+config dir for coordination modes; first10/smoketest/timeboxed runs excluded
+by default (--include-experimental to opt in). The 20260708 frontier had
+pooled the qwen3-4b first10-CVAE run (0.9% latent accuracy) with full-scale
+Qwen2.5/SEA-LION baselines in single cells. Paper's cost paragraph updated
+from the aspirational N=4,8,16 to the actually-executed N in {1,2,3}.
+
+**seahelm/LCB metric bug fixed** (`LRL-MRRE-MAS/scripts/run_seahelm_lcb.py`):
+`ifl_rate` was mean(1-SFR) (seahelm) / confusion-rate@0.3 (lcb), neither the
+paper's thresholded IFL (fraction SFR<0.5). Fixed in code; the 3 existing
+JSONs corrected in place with `ifl_rate_note` provenance (seahelm: exact
+recovery via 1-score; lcb: set null, unrecoverable from aggregates).
+
+**Quarantined with READMEs:** pre-router-fix router-ablation JSONs
+(identical accuracy across router variants by construction; token_cost pinned
+at the 128 cap) -> `results/ablations/router/pre_router_fix/`; gmp_factorial
+flagged (SFR=0/IFL=1 in every G/M/P cell -- script-based metrics saturated on
+math outputs; needs a language-aware metric + per-sample dumps).
+
+**model_loader.py orchestration** now live-scans torch.cuda (respects the
+process's own CUDA_VISIBLE_DEVICES) instead of trusting the repo-global
+mutable compute_scan.json (a single-GPU launcher writing device_count=1 could
+silently flip concurrent loaders to 8-bit); the file remains a CUDA-less
+fallback and was restored to its committed 8-device state.
+
+**Baseline runners now persist per-task `entries`**
+(run_latentmas/run_thoughtcomm): predicted/gold/snippet/cost/latency --
+aggregate-only JSONs had made the mgsm en(0.235) < th(0.370) inversion
+undiagnosable post-hoc.
+
+**Surgical-ablation checkpointing added** (LRL-MRRE-MAS
+`run_surgical_ablations.py`): atomic `ablation_checkpoint.json` per output
+dir after every completed language (per-seed for randomized_layers), resume
+keyed on model/languages/n_samples/probe_mode/seed, `--fresh` override. The
+two in-flight pre-checkpoint runs (aya, qwen25) are covered by
+`scrape_ablation_log_progress.py` (+ detached 10-min --watch loop) writing
+`progress_from_log.json` sidecars.
+
+**Zombie claim-shells killed** (user-approved): five pre-Jul-10 watcher
+claim shells (incl. the old no-claims-check hom_mgsm relauncher) were blocked
+on a *deleted* inode of the claim lock -- the lock file was recreated
+2026-07-10 00:35, orphaning them with pre-claims-file logic that could
+double-book reserved GPUs on wake. All five killed 2026-07-11; zero waiters
+remain on the dead inode; all live jobs and current watchers unaffected.
+
+Tests after all of the above: 198 green (this repo) + 135 green
+(LRL-MRRE-MAS).

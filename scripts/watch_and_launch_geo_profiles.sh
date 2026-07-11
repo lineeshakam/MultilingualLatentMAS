@@ -30,7 +30,7 @@ try_claim_and_launch() (
   # needs ~16GB, which doesn't reliably fit on a 16GB GPU even fully idle
   # (zero headroom for activations) -- that's the real reason both attempts
   # OOM'd, not just GPU contention.
-  CUDA_VISIBLE_DEVICES=$FREE_GPU PYTHONPATH=src python scripts/export_geo_profiles.py \
+  CUDA_VISIBLE_DEVICES=$FREE_GPU PYTHONPATH=/home/hthakur/MultilingualLatentMAS/src python scripts/export_geo_profiles.py \
     --model aisingapore/Llama-SEA-LION-v3-8B-IT \
     --languages th,my,km,lo,am,sw,bn,te \
     --n-samples 64 \

@@ -145,27 +145,44 @@ def load_model_and_tokenizer(
             "transformers is required to load models. Install with: pip install transformers"
         ) from exc
 
-    # --- ORCHESTRATION VIA COMPUTE SCAN ---
-    scan_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "compute_scan.json")
-    if os.path.exists(scan_file):
+    # --- ORCHESTRATION VIA LIVE DEVICE SCAN ---
+    # Query torch.cuda directly (respects this process's CUDA_VISIBLE_DEVICES)
+    # instead of trusting compute_scan.json: that file is repo-global mutable
+    # state rewritten by whichever pipeline started last under ITS visibility
+    # mask, so a single-GPU launcher writing device_count=1 silently flipped
+    # every concurrently-starting loader to 8-bit. The file remains a fallback
+    # for CUDA-less environments reasoning about a remote target.
+    try:
+        num_gpus, total_mem_gb = 0, 0.0
         try:
-            with open(scan_file, "r") as f:
-                scan = json.load(f)
-                num_gpus = scan.get("device_count", 0)
-                devices = scan.get("devices", [])
-                total_mem_gb = sum(d.get("total_memory_gb", 0) for d in devices)
-                
-                # Multi-GPU via accelerate
-                if num_gpus > 1 and spec.device_map is None:
-                    logger.info("[Orchestration] Detected %d GPUs. Enabling accelerate device_map='auto'.", num_gpus)
-                    spec.device_map = "auto"
-                
-                # Low-memory quantization via bitsandbytes
-                if total_mem_gb > 0 and total_mem_gb < 24 and not (spec.load_in_8bit or spec.load_in_4bit):
-                    logger.info("[Orchestration] Total memory %.2f GB < 24 GB. Enabling bitsandbytes 8-bit quantization.", total_mem_gb)
-                    spec.load_in_8bit = True
+            import torch as _torch
+            if _torch.cuda.is_available():
+                num_gpus = _torch.cuda.device_count()
+                total_mem_gb = sum(
+                    _torch.cuda.get_device_properties(i).total_memory / (1024 ** 3)
+                    for i in range(num_gpus)
+                )
         except Exception as e:
-            logger.warning("Failed to parse compute_scan.json for orchestration: %s", e)
+            logger.warning("Live CUDA scan failed (%s); falling back to compute_scan.json.", e)
+        if num_gpus == 0:
+            scan_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "compute_scan.json")
+            if os.path.exists(scan_file):
+                with open(scan_file, "r") as f:
+                    scan = json.load(f)
+                num_gpus = scan.get("device_count", 0)
+                total_mem_gb = sum(d.get("total_memory_gb", 0) for d in scan.get("devices", []))
+
+        # Multi-GPU via accelerate
+        if num_gpus > 1 and spec.device_map is None:
+            logger.info("[Orchestration] Detected %d GPUs. Enabling accelerate device_map='auto'.", num_gpus)
+            spec.device_map = "auto"
+
+        # Low-memory quantization via bitsandbytes
+        if total_mem_gb > 0 and total_mem_gb < 24 and not (spec.load_in_8bit or spec.load_in_4bit):
+            logger.info("[Orchestration] Total memory %.2f GB < 24 GB. Enabling bitsandbytes 8-bit quantization.", total_mem_gb)
+            spec.load_in_8bit = True
+    except Exception as e:
+        logger.warning("Device orchestration scan failed: %s", e)
 
     quantized = spec.load_in_8bit or spec.load_in_4bit
     torch_dtype = resolve_dtype(spec.dtype, spec.device)

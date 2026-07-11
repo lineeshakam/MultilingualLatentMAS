@@ -263,6 +263,21 @@ def build_report(data, baselines, plot_names: List[str]) -> str:
         "log-likelihood probe of the scoring agent's model), so mode-vs-mode Belebele deltas "
         "reflect scoring-agent identity only. Mode differences show up in "
         "SEA-SafeguardBench agreement, latency, and token cost.",
+        "- **het_mgsm/hom_mgsm `single_agent_baseline` rows produced before 2026-07-11 are "
+        "a ROUTING ARTIFACT, not a baseline**: the router placed the translation agent "
+        "first on ~94% of mgsm tasks and single-agent mode executed only that agent "
+        "(het_mgsm cached accuracy 0.0436). `_pick_single_agent` now pins the executor "
+        "to the benchmark-appropriate role; the invalid caches are quarantined and rerun "
+        "by `watch_and_launch_het_mgsm_single_agent_rerun.sh` / the hom relaunch watcher. "
+        "Do not cite a single-agent mgsm accuracy until the rerun lands.",
+        "- **het single-agent `safety_rate` measures format compliance, not safety**: "
+        "152/200 verdicts remain unparseable after the lenient re-parse "
+        "(0.14 -> 0.225); see safety_reparse_summary.json. Exclude from safety "
+        "comparisons pending a verdict-prompt rework.",
+        "- **MGSM accuracies are extractor-version sensitive**: runs launched before the "
+        "2026-07-11 `extract_mgsm_answer` fix were scored under a stricter extractor. "
+        "For cross-mode comparisons use `mgsm_rescore_summary.json` "
+        "(scripts/rescore_mgsm_from_cache.py), which rescores cached answers uniformly.",
         "",
         "## Results by config & mode",
         "",
@@ -286,6 +301,13 @@ def build_report(data, baselines, plot_names: List[str]) -> str:
                 v = met.get(c)
                 if c == "safety_rate" and "safety_rate_new" in rep:
                     cells.append(f"{rep['safety_rate_old']:.3f} -> **{rep['safety_rate_new']:.3f}** (reparsed)")
+                elif c == "accuracy_sea_safeguardbench" and \
+                        rep.get("accuracy_sea_safeguardbench_new") not in (None, v):
+                    cells.append(f"{rep['accuracy_sea_safeguardbench_old']:.3f} -> "
+                                 f"**{rep['accuracy_sea_safeguardbench_new']:.3f}** (reparsed)")
+                elif c == "accuracy" and rep.get("accuracy_new") not in (None, v):
+                    cells.append(f"{rep['accuracy_old']:.3f} -> "
+                                 f"**{rep['accuracy_new']:.3f}** (reparsed)")
                 elif isinstance(v, float):
                     cells.append(f"{v:.3f}" if c != "latency_ms" else f"{v:,.0f}")
                 else:

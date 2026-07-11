@@ -25,15 +25,37 @@ export PYTHONDONTWRITEBYTECODE=1
 cd "$(dirname "$0")/.."
 LOG=logs/bench_suite/staircase_watcher.log
 LOCK=/tmp/multilinguallatentmas_gpu_claim.lock
+CLAIMS=/tmp/multilinguallatentmas_gpu_claims
 mkdir -p logs/bench_suite
+touch "$CLAIMS"
 export LOG
 log() { echo "[$(date -u +%FT%TZ)] [staircase] $*" >> "$LOG"; }
 
 try_claim_and_launch() (
   set -u
+  # Priority gate: the hom bench-suite relaunches (paper-blocking reruns of
+  # invalidated baselines) outrank the staircase ablation. Defer while either
+  # relaunch watcher is still waiting to claim a slice; they exit once their
+  # job launches, unblocking us.
+  if pgrep -f watch_and_launch_hom_mgsm.sh >/dev/null 2>&1 \
+     || pgrep -f watch_and_launch_belebele_remaining_modes.sh >/dev/null 2>&1; then
+    return 1
+  fi
   N_NEEDED=4
   FREE_GPUS=$(nvidia-smi --query-gpu=index,memory.used --format=csv,noheader,nounits \
     | awk -F',' '{gsub(/ /,"",$2); if ($2+0 < 500) print $1}')
+  # Exclude GPUs claimed by a still-alive pid (claims file rows:
+  # "<epoch> <pid> <gpu,gpu,...> <label>"). The <500MiB test alone
+  # double-books a slice mid-load: a fresh multi-agent job occupies its
+  # 2nd/3rd GPU only minutes after launch, long after the 45s survival
+  # check releases the lock (this is what originally killed hom_mgsm).
+  LIVE_CLAIMED=$(while read -r _ts _pid _gpus _label; do
+      [ -n "${_pid:-}" ] || continue
+      kill -0 "$_pid" 2>/dev/null && echo "$_gpus" | tr ',' '\n'
+    done < "$CLAIMS" | sort -u)
+  if [ -n "$LIVE_CLAIMED" ]; then
+    FREE_GPUS=$(echo "$FREE_GPUS" | grep -vxF "$LIVE_CLAIMED" || true)
+  fi
   N_FREE=$(echo "$FREE_GPUS" | grep -c '[0-9]')
   [ "$N_FREE" -lt "$N_NEEDED" ] && return 1
 
@@ -50,7 +72,7 @@ try_claim_and_launch() (
 
   export CUDA_VISIBLE_DEVICES=$CLAIMED
   export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
-  export PYTHONPATH=src
+  export PYTHONPATH=/home/hthakur/MultilingualLatentMAS/src
 
   ROWS_ARG=()
   [ -n "$ROWS" ] && ROWS_ARG=(--rows "$ROWS")
@@ -62,6 +84,7 @@ try_claim_and_launch() (
     >> logs/bench_suite/staircase_run.log 2>&1 < /dev/null {LOCK_FD}<&- &
   JOB_PID=$!
   disown -a
+  echo "$(date +%s) $JOB_PID $CLAIMED staircase" >> "$CLAIMS"
   log "launched, driver pid=$JOB_PID -- verifying it survives startup (45s)"
   # Backgrounding + disown meant this function always returned 0 regardless
   # of whether the launched job actually started (observed: gmp_factorial

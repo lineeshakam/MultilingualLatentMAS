@@ -42,7 +42,7 @@ try_claim_and_launch() (
 
   export CUDA_VISIBLE_DEVICES=$CLAIMED
   export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
-  export PYTHONPATH=src
+  export PYTHONPATH=/home/hthakur/MultilingualLatentMAS/src
 
   log "launching het_belebele_sg --comm-modes oneflow on gpus=$CLAIMED"
   setsid nohup python scripts/run_coordination_pipeline.py \

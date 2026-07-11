@@ -26,7 +26,7 @@ done
 log "pid=$WAIT_PID gone -- GPU7 free"
 
 log "step 1/2: export_geo_profiles.py (unblocks staircase rows 3-6)"
-CUDA_VISIBLE_DEVICES=7 PYTHONPATH=src python scripts/export_geo_profiles.py \
+CUDA_VISIBLE_DEVICES=7 PYTHONPATH=/home/hthakur/MultilingualLatentMAS/src python scripts/export_geo_profiles.py \
   --model aisingapore/Llama-SEA-LION-v3-8B-IT \
   --languages th,my,km,lo,am,sw,bn,te \
   --n-samples 64 \
