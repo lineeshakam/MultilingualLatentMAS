@@ -367,11 +367,15 @@ class BaseAgent(ABC):
                 # target_states comes from UniversalLatentHub's decode (a plain
                 # float32 LatentAdapter) while the model itself typically runs in
                 # float16/8bit -- injecting without matching dtype crashes the next
-                # layer's matmul (e.g. lm_head) with a float/Half mismatch. Cast to
-                # the surrounding layer's actual runtime dtype every call rather
-                # than once outside the hook, so this is correct regardless of the
-                # model's precision.
-                inj_states = target_states.to(dtype=hs.dtype)
+                # layer's matmul (e.g. lm_head) with a float/Half mismatch. Match
+                # hs's device too, not just dtype: with device_map="auto" the
+                # injection layer can live on any GPU shard, while self._device is
+                # only the input device -- the .to(self._device) outside the hook
+                # crashed every injection on cross-device-sharded models
+                # ("Expected all tensors to be on the same device", 2026-07-11,
+                # which silently invalidated latent-mode chunks). Resolve both
+                # against the actual layer output every call.
+                inj_states = target_states.to(device=hs.device, dtype=hs.dtype)
                 inj_B, inj_L, inj_D = inj_states.shape
                 # Align sequence lengths by padding / truncating
                 if inj_L >= L:

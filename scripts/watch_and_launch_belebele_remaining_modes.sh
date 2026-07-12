@@ -30,7 +30,11 @@ CONFIG="configs/bench_suite/${INSTANCE}_belebele_sg.yaml"
 if [ "$INSTANCE" = "hom" ]; then
   MODES=single_agent_baseline,token_based_mas,oneflow,latent_based_mas_ours
 else
-  MODES=token_based_mas
+  # het: latent must be redone (device-bug chunks quarantined 2026-07-11;
+  # the direct relaunch lost the GPU race to the hom watchers and died in
+  # loading) plus the quarantined chimera token. single_agent/oneflow load
+  # from their clean caches.
+  MODES=token_based_mas,latent_based_mas_ours
 fi
 cd "$(dirname "$0")/.."
 LOG="logs/bench_suite/${INSTANCE}_remaining_modes_watcher.log"
